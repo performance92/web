@@ -1,0 +1,152 @@
+<!-- Ana Navigasyon (Navbar) -->
+<header class="sticky top-0 z-50 bg-dark-850/95 backdrop-blur-md border-b border-slate-800 transition-all duration-300">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex items-center justify-between h-20">
+      
+      <!-- LOGO BÖLÜMÜ (Yönetim panelinden yüklenen logo veya vektörel kurumsal logo) -->
+      <a href="/" class="flex items-center space-x-3 group">
+        <% if (settings.logoUrl) { %>
+          <img src="<%= settings.logoUrl %>" alt="<%= settings.siteTitle %>" class="h-12 w-auto max-w-[220px] object-contain transition-transform group-hover:scale-105">
+        <% } else { %>
+          <div class="w-11 h-11 rounded-xl bg-gradient-to-tr from-brand-600 via-brand-500 to-amber-300 flex items-center justify-center text-dark-900 shadow-lg shadow-brand-500/20 group-hover:scale-105 transition-all">
+            <i class="fa-solid fa-helmet-safety text-2xl text-dark-900"></i>
+          </div>
+          <div class="flex flex-col">
+            <span class="text-xl font-extrabold text-white tracking-tight uppercase flex items-center">
+              <%= settings.siteTitle.split(' ')[0] %>
+              <span class="text-brand-500 ml-1.5"><%= settings.siteTitle.split(' ').slice(1).join(' ') || 'İNŞAAT' %></span>
+            </span>
+            <span class="text-[10px] text-slate-400 tracking-wider uppercase font-semibold">Mimarlık & Mühendislik</span>
+          </div>
+        <% } %>
+      </a>
+
+      <!-- Masaüstü Menü Bağlantıları -->
+      <nav class="hidden md:flex items-center space-x-1 lg:space-x-2">
+        <a href="/" class="px-3 py-2 rounded-lg text-sm font-medium transition-colors <%= typeof pageName !== 'undefined' && pageName === 'home' ? 'text-brand-400 bg-slate-800/60' : 'text-slate-200 hover:text-brand-400 hover:bg-slate-800/40' %>">
+          Anasayfa
+        </a>
+        <a href="/#hakkimizda" class="px-3 py-2 rounded-lg text-sm font-medium text-slate-200 hover:text-brand-400 hover:bg-slate-800/40 transition-colors">
+          Kurumsal
+        </a>
+        <a href="/hizmetler" class="px-3 py-2 rounded-lg text-sm font-medium transition-colors <%= typeof pageName !== 'undefined' && pageName === 'services' ? 'text-brand-400 bg-slate-800/60' : 'text-slate-200 hover:text-brand-400 hover:bg-slate-800/40' %>">
+          Hizmetlerimiz
+        </a>
+        <a href="/projeler" class="px-3 py-2 rounded-lg text-sm font-medium transition-colors <%= typeof pageName !== 'undefined' && pageName === 'projects' ? 'text-brand-400 bg-slate-800/60' : 'text-slate-200 hover:text-brand-400 hover:bg-slate-800/40' %>">
+          Projelerimiz
+        </a>
+
+        <!-- DİNAMİK SAYFALAR MENÜSÜ (Panelden eklenen ve navbarda göster seçilen sayfalar) -->
+        <% if (typeof navPages !== 'undefined' && navPages && navPages.length > 0) { %>
+          <% if (navPages.length <= 2) { %>
+            <% navPages.forEach(p => { %>
+              <a href="/sayfa/<%= p.slug %>" class="px-3 py-2 rounded-lg text-sm font-medium transition-colors <%= typeof pageName !== 'undefined' && pageName === 'page-' + p.slug ? 'text-brand-400 bg-slate-800/60' : 'text-slate-200 hover:text-brand-400 hover:bg-slate-800/40' %>">
+                <%= p.title %>
+              </a>
+            <% }) %>
+          <% } else { %>
+            <div class="relative group">
+              <button class="px-3 py-2 rounded-lg text-sm font-medium text-slate-200 hover:text-brand-400 hover:bg-slate-800/40 transition-colors flex items-center space-x-1">
+                <span>Kurumsal Sayfalar</span>
+                <i class="fa-solid fa-chevron-down text-xs transition-transform group-hover:rotate-180"></i>
+              </button>
+              <div class="absolute left-0 mt-1 w-56 bg-dark-800 border border-slate-700 rounded-xl shadow-2xl py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                <% navPages.forEach(p => { %>
+                  <a href="/sayfa/<%= p.slug %>" class="block px-4 py-2 text-sm text-slate-300 hover:text-brand-400 hover:bg-slate-700/60 transition-colors">
+                    <%= p.title %>
+                  </a>
+                <% }) %>
+              </div>
+            </div>
+          <% } %>
+        <% } %>
+
+        <a href="/iletisim" class="px-3 py-2 rounded-lg text-sm font-medium transition-colors <%= typeof pageName !== 'undefined' && pageName === 'contact' ? 'text-brand-400 bg-slate-800/60' : 'text-slate-200 hover:text-brand-400 hover:bg-slate-800/40' %>">
+          İletişim
+        </a>
+      </nav>
+
+      <!-- Sağ Aksiyon Butonu & Mobil Buton -->
+      <div class="flex items-center space-x-3">
+        <% if (settings.whatsapp) { %>
+          <a href="https://wa.me/<%= settings.whatsapp.replace(/[^0-9]/g, '') %>?text=Merhaba,%20Ağaoğulları%20İnşaat%20projeleriniz%20hakkında%20bilgi%20almak%20istiyorum." target="_blank" rel="noopener noreferrer" class="hidden sm:inline-flex items-center justify-center w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500 hover:text-white transition-all">
+            <i class="fa-brands fa-whatsapp text-lg"></i>
+          </a>
+        <% } %>
+
+        <a href="/iletisim" class="hidden sm:inline-flex items-center space-x-2 bg-gradient-to-r from-brand-500 to-brand-600 hover:from-brand-600 hover:to-brand-700 text-dark-900 font-bold px-5 py-2.5 rounded-xl shadow-lg shadow-brand-500/20 hover:shadow-brand-500/35 transition-all text-sm">
+          <i class="fa-solid fa-calculator"></i>
+          <span>Teklif Al</span>
+        </a>
+
+        <!-- Mobil Hamburger Butonu -->
+        <button id="mobileMenuBtn" class="md:hidden p-2 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 focus:outline-none" aria-label="Menüyü Aç">
+          <i class="fa-solid fa-bars text-xl" id="menuIcon"></i>
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Mobil Menü Dropdown -->
+  <div id="mobileMenu" class="hidden md:hidden bg-dark-850 border-b border-slate-800 px-4 pt-2 pb-6 space-y-1">
+    <a href="/" class="block px-3 py-2.5 rounded-lg text-base font-medium <%= typeof pageName !== 'undefined' && pageName === 'home' ? 'text-brand-400 bg-slate-800' : 'text-slate-200 hover:bg-slate-800' %>">
+      Anasayfa
+    </a>
+    <a href="/#hakkimizda" class="block px-3 py-2.5 rounded-lg text-base font-medium text-slate-200 hover:bg-slate-800">
+      Kurumsal
+    </a>
+    <a href="/hizmetler" class="block px-3 py-2.5 rounded-lg text-base font-medium <%= typeof pageName !== 'undefined' && pageName === 'services' ? 'text-brand-400 bg-slate-800' : 'text-slate-200 hover:bg-slate-800' %>">
+      Hizmetlerimiz
+    </a>
+    <a href="/projeler" class="block px-3 py-2.5 rounded-lg text-base font-medium <%= typeof pageName !== 'undefined' && pageName === 'projects' ? 'text-brand-400 bg-slate-800' : 'text-slate-200 hover:bg-slate-800' %>">
+      Projelerimiz
+    </a>
+    
+    <% if (typeof navPages !== 'undefined' && navPages && navPages.length > 0) { %>
+      <div class="pt-2 pb-1 border-t border-slate-800">
+        <span class="px-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Kurumsal Sayfalar</span>
+        <% navPages.forEach(p => { %>
+          <a href="/sayfa/<%= p.slug %>" class="block px-3 py-2 rounded-lg text-sm text-slate-300 hover:text-brand-400 hover:bg-slate-800">
+            <i class="fa-solid fa-angle-right text-brand-500 text-xs mr-2"></i><%= p.title %>
+          </a>
+        <% }) %>
+      </div>
+    <% } %>
+
+    <a href="/iletisim" class="block px-3 py-2.5 rounded-lg text-base font-medium <%= typeof pageName !== 'undefined' && pageName === 'contact' ? 'text-brand-400 bg-slate-800' : 'text-slate-200 hover:bg-slate-800' %>">
+      İletişim
+    </a>
+    
+    <div class="pt-4 border-t border-slate-800 flex flex-col space-y-3">
+      <a href="tel:<%= settings.phone.replace(/[^0-9+]/g, '') %>" class="flex items-center space-x-3 text-sm text-slate-300 px-3">
+        <i class="fa-solid fa-phone text-brand-500"></i>
+        <span><%= settings.phone %></span>
+      </a>
+      <a href="/iletisim" class="w-full text-center bg-brand-500 hover:bg-brand-600 text-dark-900 font-bold py-3 rounded-xl shadow-lg">
+        Ücretsiz Teklif & Keşif İste
+      </a>
+      <a href="/admin" class="text-center text-xs text-slate-500 hover:text-slate-400 pt-2">
+        <i class="fa-solid fa-lock text-[10px] mr-1"></i>Yönetici Girişi
+      </a>
+    </div>
+  </div>
+</header>
+
+<script>
+  const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+  const mobileMenu = document.getElementById('mobileMenu');
+  const menuIcon = document.getElementById('menuIcon');
+
+  if (mobileMenuBtn && mobileMenu) {
+    mobileMenuBtn.addEventListener('click', () => {
+      mobileMenu.classList.toggle('hidden');
+      if (mobileMenu.classList.contains('hidden')) {
+        menuIcon.className = 'fa-solid fa-bars text-xl';
+      } else {
+        menuIcon.className = 'fa-solid fa-xmark text-xl';
+      }
+    });
+  }
+</script>
+

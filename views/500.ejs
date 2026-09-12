@@ -1,0 +1,30 @@
+<%- include('partials/head') %>
+<%- include('partials/topbar') %>
+<%- include('partials/navbar') %>
+
+<section class="py-28 bg-slate-50 flex-1 flex items-center justify-center">
+  <div class="max-w-md mx-auto px-4 text-center space-y-6">
+    <div class="w-24 h-24 rounded-3xl bg-rose-500/10 text-rose-500 flex items-center justify-center text-4xl mx-auto">
+      <i class="fa-solid fa-server"></i>
+    </div>
+    <div class="space-y-2">
+      <h1 class="text-6xl font-extrabold text-dark-900">500</h1>
+      <h2 class="text-xl font-bold text-slate-800">Sunucu Hatası Oluştu</h2>
+      <p class="text-sm text-slate-500">
+        İsteğiniz işlenirken teknik bir problem yaşandı. Lütfen birkaç dakika sonra tekrar deneyiniz.
+      </p>
+      <% if (typeof error !== 'undefined' && error) { %>
+        <p class="text-xs text-rose-600 bg-rose-50 p-3 rounded-lg border border-rose-200 text-left font-mono overflow-auto"><%= error %></p>
+      <% } %>
+    </div>
+    <div class="pt-2">
+      <a href="/" class="inline-flex items-center space-x-2 bg-dark-900 hover:bg-brand-500 hover:text-dark-900 text-white font-bold px-6 py-3 rounded-xl transition-all text-sm shadow-lg">
+        <i class="fa-solid fa-house text-xs"></i>
+        <span>Anasayfaya Dön</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<%- include('partials/footer') %>
+

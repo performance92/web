@@ -1,0 +1,40 @@
+<!-- Üst Bilgi Barı (Topbar) -->
+<div class="bg-dark-900 text-slate-300 text-xs py-2.5 border-b border-slate-800/80 hidden lg:block">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center">
+    <div class="flex items-center space-x-6">
+      <a href="tel:<%= settings.phone.replace(/[^0-9+]/g, '') %>" class="flex items-center space-x-2 hover:text-brand-400 transition-colors">
+        <i class="fa-solid fa-phone text-brand-500"></i>
+        <span><%= settings.phone %></span>
+      </a>
+      <a href="mailto:<%= settings.email %>" class="flex items-center space-x-2 hover:text-brand-400 transition-colors">
+        <i class="fa-solid fa-envelope text-brand-500"></i>
+        <span><%= settings.email %></span>
+      </a>
+      <div class="flex items-center space-x-2 text-slate-400">
+        <i class="fa-regular fa-clock text-brand-500"></i>
+        <span><%= settings.workingHours %></span>
+      </div>
+    </div>
+    <div class="flex items-center space-x-4">
+      <span class="text-slate-500 text-xs">Bizi Takip Edin:</span>
+      <% if (settings.social.facebook) { %>
+        <a href="<%= settings.social.facebook %>" target="_blank" rel="noopener noreferrer" class="hover:text-brand-400 transition-colors"><i class="fa-brands fa-facebook-f"></i></a>
+      <% } %>
+      <% if (settings.social.instagram) { %>
+        <a href="<%= settings.social.instagram %>" target="_blank" rel="noopener noreferrer" class="hover:text-brand-400 transition-colors"><i class="fa-brands fa-instagram"></i></a>
+      <% } %>
+      <% if (settings.social.linkedin) { %>
+        <a href="<%= settings.social.linkedin %>" target="_blank" rel="noopener noreferrer" class="hover:text-brand-400 transition-colors"><i class="fa-brands fa-linkedin-in"></i></a>
+      <% } %>
+      <% if (settings.social.youtube) { %>
+        <a href="<%= settings.social.youtube %>" target="_blank" rel="noopener noreferrer" class="hover:text-brand-400 transition-colors"><i class="fa-brands fa-youtube"></i></a>
+      <% } %>
+      <div class="h-3 w-px bg-slate-700"></div>
+      <a href="/admin" class="text-brand-400 hover:text-brand-300 transition-colors flex items-center space-x-1 font-medium">
+        <i class="fa-solid fa-lock text-[10px]"></i>
+        <span>Yönetici Paneli</span>
+      </a>
+    </div>
+  </div>
+</div>
+

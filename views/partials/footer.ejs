@@ -1,0 +1,152 @@
+<!-- Alt Bilgi (Footer) -->
+<footer class="bg-dark-900 text-slate-400 mt-auto border-t border-slate-800">
+  <!-- Üst Bilgi Barı: Hızlı Çağrı -->
+  <div class="bg-brand-500 py-6 px-4 sm:px-6 lg:px-8 text-dark-900">
+    <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+      <div class="flex items-center space-x-4 text-center md:text-left">
+        <div class="w-12 h-12 rounded-xl bg-dark-900 text-brand-400 flex items-center justify-center text-xl shrink-0">
+          <i class="fa-solid fa-headset"></i>
+        </div>
+        <div>
+          <h4 class="text-lg font-bold text-dark-900 leading-tight">Projeniz İçin Ücretsiz Keşif & Danışmanlık Alın</h4>
+          <p class="text-sm text-dark-800 font-medium">Uzman mühendis ve mimar ekibimiz projenizi yerinde incelesin.</p>
+        </div>
+      </div>
+      <div class="flex items-center space-x-3">
+        <a href="tel:<%= settings.phone.replace(/[^0-9+]/g, '') %>" class="bg-dark-900 text-white hover:bg-dark-850 px-6 py-3 rounded-xl font-bold text-sm transition-all shadow-md flex items-center space-x-2">
+          <i class="fa-solid fa-phone text-brand-400"></i>
+          <span><%= settings.phone %></span>
+        </a>
+        <a href="/iletisim" class="bg-white/90 hover:bg-white text-dark-900 px-6 py-3 rounded-xl font-bold text-sm transition-all shadow-md">
+          Teklif Formu
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Ana Footer Kolonları -->
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
+      
+      <!-- 1. Kolon: Şirket & Logo -->
+      <div class="space-y-4">
+        <a href="/" class="flex items-center space-x-3 group">
+          <% if (settings.logoUrl) { %>
+            <img src="<%= settings.logoUrl %>" alt="<%= settings.siteTitle %>" class="h-12 w-auto max-w-[200px] object-contain">
+          <% } else { %>
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-600 to-amber-300 flex items-center justify-center text-dark-900 shadow-md">
+              <i class="fa-solid fa-helmet-safety text-xl text-dark-900"></i>
+            </div>
+            <span class="text-xl font-extrabold text-white tracking-tight uppercase">
+              <%= settings.siteTitle.split(' ')[0] %>
+              <span class="text-brand-500"><%= settings.siteTitle.split(' ').slice(1).join(' ') || 'İNŞAAT' %></span>
+            </span>
+          <% } %>
+        </a>
+        <p class="text-sm leading-relaxed text-slate-400">
+          <%= settings.siteDescription %>
+        </p>
+        <div class="flex items-center space-x-3 pt-2">
+          <% if (settings.social.facebook) { %>
+            <a href="<%= settings.social.facebook %>" target="_blank" rel="noopener noreferrer" class="w-9 h-9 rounded-lg bg-slate-800 hover:bg-brand-500 hover:text-dark-900 flex items-center justify-center text-slate-300 transition-all"><i class="fa-brands fa-facebook-f"></i></a>
+          <% } %>
+          <% if (settings.social.instagram) { %>
+            <a href="<%= settings.social.instagram %>" target="_blank" rel="noopener noreferrer" class="w-9 h-9 rounded-lg bg-slate-800 hover:bg-brand-500 hover:text-dark-900 flex items-center justify-center text-slate-300 transition-all"><i class="fa-brands fa-instagram"></i></a>
+          <% } %>
+          <% if (settings.social.linkedin) { %>
+            <a href="<%= settings.social.linkedin %>" target="_blank" rel="noopener noreferrer" class="w-9 h-9 rounded-lg bg-slate-800 hover:bg-brand-500 hover:text-dark-900 flex items-center justify-center text-slate-300 transition-all"><i class="fa-brands fa-linkedin-in"></i></a>
+          <% } %>
+          <% if (settings.social.youtube) { %>
+            <a href="<%= settings.social.youtube %>" target="_blank" rel="noopener noreferrer" class="w-9 h-9 rounded-lg bg-slate-800 hover:bg-brand-500 hover:text-dark-900 flex items-center justify-center text-slate-300 transition-all"><i class="fa-brands fa-youtube"></i></a>
+          <% } %>
+        </div>
+      </div>
+
+      <!-- 2. Kolon: Hızlı Bağlantılar -->
+      <div>
+        <h5 class="text-white font-bold text-base mb-4 relative pb-2 after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-10 after:h-0.5 after:bg-brand-500">
+          Hızlı Bağlantılar
+        </h5>
+        <ul class="space-y-2.5 text-sm">
+          <li><a href="/" class="hover:text-brand-400 transition-colors flex items-center"><i class="fa-solid fa-chevron-right text-xs text-brand-500 mr-2"></i>Anasayfa</a></li>
+          <li><a href="/#hakkimizda" class="hover:text-brand-400 transition-colors flex items-center"><i class="fa-solid fa-chevron-right text-xs text-brand-500 mr-2"></i>Kurumsal</a></li>
+          <li><a href="/hizmetler" class="hover:text-brand-400 transition-colors flex items-center"><i class="fa-solid fa-chevron-right text-xs text-brand-500 mr-2"></i>Hizmetlerimiz</a></li>
+          <li><a href="/projeler" class="hover:text-brand-400 transition-colors flex items-center"><i class="fa-solid fa-chevron-right text-xs text-brand-500 mr-2"></i>Projelerimiz</a></li>
+          <li><a href="/iletisim" class="hover:text-brand-400 transition-colors flex items-center"><i class="fa-solid fa-chevron-right text-xs text-brand-500 mr-2"></i>İletişim & Konum</a></li>
+        </ul>
+      </div>
+
+      <!-- 3. Kolon: Kurumsal & Dinamik Sayfalar -->
+      <div>
+        <h5 class="text-white font-bold text-base mb-4 relative pb-2 after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-10 after:h-0.5 after:bg-brand-500">
+          Kurumsal
+        </h5>
+        <ul class="space-y-2.5 text-sm">
+          <% if (typeof navPages !== 'undefined' && navPages && navPages.length > 0) { %>
+            <% navPages.forEach(p => { %>
+              <li>
+                <a href="/sayfa/<%= p.slug %>" class="hover:text-brand-400 transition-colors flex items-center">
+                  <i class="fa-solid fa-chevron-right text-xs text-brand-500 mr-2"></i><%= p.title %>
+                </a>
+              </li>
+            <% }) %>
+          <% } else { %>
+            <li><a href="/#hakkimizda" class="hover:text-brand-400 transition-colors flex items-center"><i class="fa-solid fa-chevron-right text-xs text-brand-500 mr-2"></i>Vizyon & Misyon</a></li>
+            <li><a href="/#hakkimizda" class="hover:text-brand-400 transition-colors flex items-center"><i class="fa-solid fa-chevron-right text-xs text-brand-500 mr-2"></i>Kalite Politikamız</a></li>
+          <% } %>
+          <li><a href="/admin/login" class="hover:text-brand-400 transition-colors flex items-center text-slate-500"><i class="fa-solid fa-lock text-xs text-slate-600 mr-2"></i>Yönetici Paneli</a></li>
+        </ul>
+      </div>
+
+      <!-- 4. Kolon: İletişim Bilgileri -->
+      <div>
+        <h5 class="text-white font-bold text-base mb-4 relative pb-2 after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-10 after:h-0.5 after:bg-brand-500">
+          İletişim Bilgileri
+        </h5>
+        <ul class="space-y-3.5 text-sm">
+          <li class="flex items-start space-x-3">
+            <i class="fa-solid fa-location-dot text-brand-500 mt-1 shrink-0"></i>
+            <span><%= settings.address %></span>
+          </li>
+          <li class="flex items-center space-x-3">
+            <i class="fa-solid fa-phone text-brand-500 shrink-0"></i>
+            <a href="tel:<%= settings.phone.replace(/[^0-9+]/g, '') %>" class="hover:text-brand-400 transition-colors"><%= settings.phone %></a>
+          </li>
+          <li class="flex items-center space-x-3">
+            <i class="fa-solid fa-envelope text-brand-500 shrink-0"></i>
+            <a href="mailto:<%= settings.email %>" class="hover:text-brand-400 transition-colors"><%= settings.email %></a>
+          </li>
+          <li class="flex items-center space-x-3">
+            <i class="fa-regular fa-clock text-brand-500 shrink-0"></i>
+            <span><%= settings.workingHours %></span>
+          </li>
+        </ul>
+      </div>
+
+    </div>
+
+    <!-- Alt Telif & Bilgi -->
+    <div class="border-t border-slate-800/80 mt-12 pt-8 flex flex-col sm:flex-row justify-between items-center text-xs text-slate-500">
+      <p>© <%= new Date().getFullYear() %> <%= settings.siteTitle %>. Tüm Hakları Saklıdır.</p>
+      <div class="flex items-center space-x-4 mt-4 sm:mt-0">
+        <span>Güvenli & Modern Yapı Sistemleri</span>
+        <span class="text-slate-700">|</span>
+        <a href="/admin" class="hover:text-brand-400 transition-colors">Admin Panel</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- Sağ Altta Sabit WhatsApp Canlı İletişim Butonu -->
+<% if (settings.whatsapp) { %>
+  <a href="https://wa.me/<%= settings.whatsapp.replace(/[^0-9]/g, '') %>?text=Merhaba,%20Ağaoğulları%20İnşaat%20ile%20iletişime%20geçmek%20istiyorum." target="_blank" rel="noopener noreferrer" class="fixed bottom-6 right-6 z-40 bg-emerald-500 hover:bg-emerald-600 text-white w-14 h-14 rounded-full flex items-center justify-center shadow-xl shadow-emerald-500/30 hover:scale-110 transition-all duration-300 group" aria-label="WhatsApp Canlı Destek">
+    <i class="fa-brands fa-whatsapp text-3xl"></i>
+    <span class="absolute right-16 bg-dark-900 text-white text-xs px-3 py-1.5 rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity shadow-lg pointer-events-none">
+      WhatsApp ile Danışın
+    </span>
+  </a>
+<% } %>
+
+</body>
+</html>
+

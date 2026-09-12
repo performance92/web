@@ -1,0 +1,166 @@
+<%- include('header') %>
+
+<% if (typeof success !== 'undefined' && success) { %>
+  <div class="mb-6 p-4 rounded-2xl bg-emerald-500 text-white text-sm font-semibold shadow-md flex items-center space-x-2">
+    <i class="fa-solid fa-circle-check text-lg"></i>
+    <span>Web sitesi metinleri ve görselleri başarıyla güncellendi! Anasayfada anında görüntülenecektir.</span>
+  </div>
+<% } %>
+
+<form action="/admin/content" method="POST" enctype="multipart/form-data" class="space-y-8">
+
+  <!-- ================= 1. HERO (ANA BANNER) YAZILARI & GÖRSELİ ================= -->
+  <div class="bg-white p-6 sm:p-8 rounded-3xl border border-slate-200 shadow-sm space-y-6">
+    <div class="flex items-center space-x-3 pb-4 border-b border-slate-100">
+      <div class="w-10 h-10 rounded-xl bg-brand-500/10 text-brand-600 flex items-center justify-center text-lg">
+        <i class="fa-solid fa-desktop"></i>
+      </div>
+      <div>
+        <h3 class="text-base font-bold text-dark-900">Hero (Anasayfa Karşılama) Metinleri</h3>
+        <p class="text-xs text-slate-500">Ziyaretçilerin siteye girdiğinde ilk gördüğü büyük başlık, açıklama ve butonlar.</p>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+      <div>
+        <label class="block text-xs font-bold text-slate-700 uppercase mb-1.5">Üst Rozet Metni</label>
+        <input type="text" name="hero_badge" value="<%= settings.hero.badge %>" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm">
+      </div>
+      <div>
+        <label class="block text-xs font-bold text-slate-700 uppercase mb-1.5">Hero Arka Plan Fotoğrafı Yükle</label>
+        <input type="file" name="hero_bgImage" id="heroBgInput" accept="image/*" class="block w-full text-xs text-slate-500 file:mr-3 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-brand-500 file:text-dark-900 cursor-pointer">
+      </div>
+    </div>
+
+    <div>
+      <label class="block text-xs font-bold text-slate-700 uppercase mb-1.5">Hero Ana Başlığı *</label>
+      <input type="text" name="hero_title" value="<%= settings.hero.title %>" required class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm font-semibold">
+    </div>
+
+    <div>
+      <label class="block text-xs font-bold text-slate-700 uppercase mb-1.5">Hero Alt Açıklama Metni</label>
+      <textarea name="hero_subtitle" rows="3" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm"><%= settings.hero.subtitle %></textarea>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-2">
+      <div>
+        <label class="block text-xs font-bold text-slate-700 uppercase mb-1.5">1. Buton Yazısı</label>
+        <input type="text" name="hero_btnPrimaryText" value="<%= settings.hero.btnPrimaryText %>" class="w-full px-3 py-2.5 rounded-xl border border-slate-300 text-sm">
+      </div>
+      <div>
+        <label class="block text-xs font-bold text-slate-700 uppercase mb-1.5">1. Buton Linki</label>
+        <input type="text" name="hero_btnPrimaryLink" value="<%= settings.hero.btnPrimaryLink %>" class="w-full px-3 py-2.5 rounded-xl border border-slate-300 text-sm">
+      </div>
+      <div>
+        <label class="block text-xs font-bold text-slate-700 uppercase mb-1.5">2. Buton Yazısı</label>
+        <input type="text" name="hero_btnSecondaryText" value="<%= settings.hero.btnSecondaryText %>" class="w-full px-3 py-2.5 rounded-xl border border-slate-300 text-sm">
+      </div>
+      <div>
+        <label class="block text-xs font-bold text-slate-700 uppercase mb-1.5">2. Buton Linki</label>
+        <input type="text" name="hero_btnSecondaryLink" value="<%= settings.hero.btnSecondaryLink %>" class="w-full px-3 py-2.5 rounded-xl border border-slate-300 text-sm">
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= 2. İSTATİSTİK SAYAÇLARI ================= -->
+  <div class="bg-white p-6 sm:p-8 rounded-3xl border border-slate-200 shadow-sm space-y-6">
+    <div class="flex items-center space-x-3 pb-4 border-b border-slate-100">
+      <div class="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-600 flex items-center justify-center text-lg">
+        <i class="fa-solid fa-arrow-trend-up"></i>
+      </div>
+      <div>
+        <h3 class="text-base font-bold text-dark-900">Anasayfa İstatistik Sayaçları</h3>
+        <p class="text-xs text-slate-500">Şirketinizin başarı ve güven metriklerini gösteren 4 adet sayaç.</p>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div class="p-4 bg-slate-50 rounded-2xl border border-slate-200 space-y-3">
+        <label class="block text-xs font-bold text-dark-900 uppercase">1. Sayaç</label>
+        <input type="text" name="stat1_number" value="<%= settings.stats.stat1_number %>" placeholder="250+" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm font-bold text-brand-600">
+        <input type="text" name="stat1_label" value="<%= settings.stats.stat1_label %>" placeholder="Tamamlanan Proje" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs">
+      </div>
+
+      <div class="p-4 bg-slate-50 rounded-2xl border border-slate-200 space-y-3">
+        <label class="block text-xs font-bold text-dark-900 uppercase">2. Sayaç</label>
+        <input type="text" name="stat2_number" value="<%= settings.stats.stat2_number %>" placeholder="25+" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm font-bold text-brand-600">
+        <input type="text" name="stat2_label" value="<%= settings.stats.stat2_label %>" placeholder="Yıllık Tecrübe" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs">
+      </div>
+
+      <div class="p-4 bg-slate-50 rounded-2xl border border-slate-200 space-y-3">
+        <label class="block text-xs font-bold text-dark-900 uppercase">3. Sayaç</label>
+        <input type="text" name="stat3_number" value="<%= settings.stats.stat3_number %>" placeholder="1.2M+" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm font-bold text-brand-600">
+        <input type="text" name="stat3_label" value="<%= settings.stats.stat3_label %>" placeholder="m² İnşaat Alanı" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs">
+      </div>
+
+      <div class="p-4 bg-slate-50 rounded-2xl border border-slate-200 space-y-3">
+        <label class="block text-xs font-bold text-dark-900 uppercase">4. Sayaç</label>
+        <input type="text" name="stat4_number" value="<%= settings.stats.stat4_number %>" placeholder="%100" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm font-bold text-brand-600">
+        <input type="text" name="stat4_label" value="<%= settings.stats.stat4_label %>" placeholder="Müşteri Memnuniyeti" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs">
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= 3. HAKKIMIZDA BÖLÜMÜ YAZILARI ================= -->
+  <div class="bg-white p-6 sm:p-8 rounded-3xl border border-slate-200 shadow-sm space-y-6">
+    <div class="flex items-center space-x-3 pb-4 border-b border-slate-100">
+      <div class="w-10 h-10 rounded-xl bg-blue-500/10 text-blue-600 flex items-center justify-center text-lg">
+        <i class="fa-solid fa-address-card"></i>
+      </div>
+      <div>
+        <h3 class="text-base font-bold text-dark-900">Kurumsal / Hakkımızda Bölümü Yazıları</h3>
+        <p class="text-xs text-slate-500">Anasayfadaki şirket hikayesi, vizyon, misyon ve kurumsal fotoğraf.</p>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+      <div>
+        <label class="block text-xs font-bold text-slate-700 uppercase mb-1.5">Bölüm Üst Başlığı (Etiket)</label>
+        <input type="text" name="about_subtitle" value="<%= settings.about.subtitle %>" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm">
+      </div>
+      <div>
+        <label class="block text-xs font-bold text-slate-700 uppercase mb-1.5">Bölüm Ana Başlığı</label>
+        <input type="text" name="about_title" value="<%= settings.about.title %>" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm font-semibold">
+      </div>
+    </div>
+
+    <div>
+      <label class="block text-xs font-bold text-slate-700 uppercase mb-1.5">Hakkımızda 1. Paragraf Metni</label>
+      <textarea name="about_text1" rows="3" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm leading-relaxed"><%= settings.about.text1 %></textarea>
+    </div>
+
+    <div>
+      <label class="block text-xs font-bold text-slate-700 uppercase mb-1.5">Hakkımızda 2. Paragraf Metni</label>
+      <textarea name="about_text2" rows="3" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm leading-relaxed"><%= settings.about.text2 %></textarea>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+      <div>
+        <label class="block text-xs font-bold text-slate-700 uppercase mb-1.5">Vizyonumuz</label>
+        <textarea name="about_vision" rows="2" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm"><%= settings.about.vision %></textarea>
+      </div>
+
+      <div>
+        <label class="block text-xs font-bold text-slate-700 uppercase mb-1.5">Misyonumuz</label>
+        <textarea name="about_mission" rows="2" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm"><%= settings.about.mission %></textarea>
+      </div>
+    </div>
+
+    <div>
+      <label class="block text-xs font-bold text-slate-700 uppercase mb-1.5">Hakkımızda Bölümü Fotoğrafı Yükle</label>
+      <input type="file" name="about_image" accept="image/*" class="block w-full text-xs text-slate-500 file:mr-3 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-brand-500 file:text-dark-900 cursor-pointer">
+    </div>
+  </div>
+
+  <!-- Kaydet Butonu -->
+  <div class="flex items-center justify-end">
+    <button type="submit" class="bg-brand-500 hover:bg-brand-600 text-dark-900 font-extrabold px-8 py-4 rounded-2xl shadow-lg transition-all flex items-center space-x-2 text-base">
+      <i class="fa-solid fa-floppy-disk"></i>
+      <span>Tüm Yazıları & Görselleri Kaydet</span>
+    </button>
+  </div>
+
+</form>
+
+<%- include('footer') %>
+

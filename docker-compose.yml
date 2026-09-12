@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  # Node.js Web & CMS Uygulaması
+  insaat-web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: agaogullari-insaat-web:latest
+    container_name: agaogullari_insaat_web
+    restart: unless-stopped
+    ports:
+      # İsteğe bağlı yerel test için doğrudan 3000 portu
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - NODE_ENV=production
+      - SESSION_SECRET=agaogullari-insaat-guvenli-anahtar-2026
+    volumes:
+      # Veritabanı ve içeriklerin kalıcılığı
+      - ./data:/app/data
+      # Yüklenen logolar, proje fotoğrafları ve banner'ların kalıcılığı
+      - ./public/uploads:/app/public/uploads
+
+  # Nginx Ters Proxy & Wildcard SSL Sonlandırma
+  nginx:
+    image: nginx:alpine
+    container_name: agaogullari_nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"     # Standart HTTP (otomatik HTTPS'e yönlendirir)
+      - "443:443"   # Güvenli HTTPS (Wildcard SSL ile)
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - insaat-web

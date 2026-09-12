@@ -1,0 +1,210 @@
+<%- include('header') %>
+
+<% if (typeof success !== 'undefined' && success) { %>
+  <div class="mb-6 p-4 rounded-2xl bg-emerald-500 text-white text-sm font-semibold shadow-md flex items-center space-x-2">
+    <i class="fa-solid fa-circle-check text-lg"></i>
+    <span>Proje listesi ve fotoğraflar başarıyla güncellendi!</span>
+  </div>
+<% } %>
+
+<!-- Üst Başlık & Yeni Proje Ekle Butonu -->
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+  <div>
+    <h2 class="text-xl font-bold text-dark-900">Projeler & Fotoğraf Portfolyosu</h2>
+    <p class="text-xs text-slate-500 mt-0.5">Sitenizde sergilenen tüm inşaat projelerini ve fotoğraflarını yönetin.</p>
+  </div>
+  <button onclick="toggleProjectModal()" class="inline-flex items-center space-x-2 bg-brand-500 hover:bg-brand-600 text-dark-900 font-extrabold px-5 py-3 rounded-xl shadow-lg transition-all text-xs">
+    <i class="fa-solid fa-cloud-arrow-up"></i>
+    <span>Yeni Proje & Fotoğraf Ekle</span>
+  </button>
+</div>
+
+<!-- Projeler Tablosu / Kart Listesi -->
+<div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+  <div class="overflow-x-auto">
+    <table class="w-full text-left text-sm text-slate-600">
+      <thead class="bg-slate-50 text-slate-500 text-[11px] font-bold uppercase tracking-wider border-b border-slate-200">
+        <tr>
+          <th class="px-6 py-4">Fotoğraf</th>
+          <th class="px-6 py-4">Proje Adı</th>
+          <th class="px-6 py-4">Kategori</th>
+          <th class="px-6 py-4">Lokasyon / Yıl</th>
+          <th class="px-6 py-4">Durum</th>
+          <th class="px-6 py-4 text-right">İşlemler</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-slate-100">
+        <% if (projects && projects.length > 0) { %>
+          <% projects.forEach(p => { %>
+            <tr class="hover:bg-slate-50/80 transition-colors">
+              <td class="px-6 py-4">
+                <img src="<%= p.image %>" alt="<%= p.title %>" class="w-16 h-12 rounded-lg object-cover border border-slate-200 shadow-sm">
+              </td>
+              <td class="px-6 py-4">
+                <div class="font-bold text-dark-900"><%= p.title %></div>
+                <div class="text-xs text-slate-400 line-clamp-1 mt-0.5 max-w-xs"><%= p.description %></div>
+              </td>
+              <td class="px-6 py-4">
+                <span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-700">
+                  <%= p.category %>
+                </span>
+              </td>
+              <td class="px-6 py-4">
+                <div class="text-xs text-slate-700 font-medium"><%= p.location %></div>
+                <div class="text-[11px] text-slate-400"><%= p.year %></div>
+              </td>
+              <td class="px-6 py-4">
+                <span class="px-2.5 py-1 rounded-full text-xs font-bold <%= p.status === 'Tamamlandı' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-800' %>">
+                  <%= p.status %>
+                </span>
+              </td>
+              <td class="px-6 py-4 text-right space-x-2">
+                <a href="/proje/<%= p.id %>" target="_blank" class="p-2 text-slate-400 hover:text-brand-600 transition-colors" title="Görüntüle">
+                  <i class="fa-solid fa-eye"></i>
+                </a>
+                <button onclick="editProject('<%= JSON.stringify(p).replace(/'/g, "\\'") %>')" class="p-2 text-slate-400 hover:text-blue-600 transition-colors" title="Düzenle">
+                  <i class="fa-solid fa-pen-to-square"></i>
+                </button>
+                <form action="/admin/projects/delete/<%= p.id %>" method="POST" class="inline" onsubmit="return confirm('Bu projeyi silmek istediğinizden emin misiniz?');">
+                  <button type="submit" class="p-2 text-slate-400 hover:text-rose-600 transition-colors" title="Sil">
+                    <i class="fa-solid fa-trash-can"></i>
+                  </button>
+                </form>
+              </td>
+            </tr>
+          <% }) %>
+        <% } else { %>
+          <tr>
+            <td colspan="6" class="px-6 py-12 text-center text-slate-400">
+              Henüz kayıtlı proje bulunmuyor. "Yeni Proje Ekle" butonuyla ilk projenizi ekleyebilirsiniz.
+            </td>
+          </tr>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ================= YENİ / DÜZENLEME PROJE MODALI ================= -->
+<div id="projectModal" class="fixed inset-0 z-50 bg-dark-900/80 backdrop-blur-sm hidden flex items-center justify-center p-4 overflow-y-auto">
+  <div class="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl relative my-8">
+    <button onclick="toggleProjectModal()" class="absolute top-6 right-6 text-slate-400 hover:text-dark-900 text-lg">
+      <i class="fa-solid fa-xmark"></i>
+    </button>
+
+    <h3 id="modalTitle" class="text-xl font-bold text-dark-900 mb-6 flex items-center space-x-2">
+      <i class="fa-solid fa-camera-retro text-brand-500"></i>
+      <span>Yeni Proje & Fotoğraf Ekle</span>
+    </h3>
+
+    <form id="projectForm" action="/admin/projects/add" method="POST" enctype="multipart/form-data" class="space-y-5">
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1.5">Proje Başlığı *</label>
+          <input type="text" name="title" id="p_title" required class="w-full px-4 py-3 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-brand-500" placeholder="Örn: Ağaoğulları Rezidans">
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1.5">Kategori *</label>
+          <select name="category" id="p_category" class="w-full px-4 py-3 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-brand-500">
+            <option value="Konut">Konut & Rezidans</option>
+            <option value="Ticari">Ticari Plaza</option>
+            <option value="Endüstriyel">Endüstriyel & Depo</option>
+            <option value="Kentsel Dönüşüm">Kentsel Dönüşüm</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1.5">Lokasyon</label>
+          <input type="text" name="location" id="p_location" class="w-full px-4 py-3 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-brand-500" placeholder="Maslak / İstanbul">
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1.5">Yıl</label>
+          <input type="text" name="year" id="p_year" class="w-full px-4 py-3 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-brand-500" placeholder="2025">
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1.5">Durum</label>
+          <select name="status" id="p_status" class="w-full px-4 py-3 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-brand-500">
+            <option value="Devam Ediyor">Devam Ediyor</option>
+            <option value="Tamamlandı">Tamamlandı</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Fotoğraf Yükleme -->
+      <div class="bg-slate-50 p-4 rounded-2xl border-2 border-dashed border-slate-300 space-y-2">
+        <label class="block text-xs font-bold text-dark-900 uppercase">Proje Fotoğrafı Yükle *</label>
+        <div class="flex items-center space-x-4">
+          <img id="p_preview" src="" alt="Önizleme" class="w-16 h-12 rounded-lg object-cover border border-slate-300 hidden">
+          <input type="file" name="image" id="p_imageInput" accept="image/*" class="block w-full text-xs text-slate-500 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-brand-500 file:text-dark-900 cursor-pointer">
+        </div>
+        <p class="text-[11px] text-slate-400">JPG, PNG veya WebP formatında yüksek çözünürlüklü şantiye/proje fotoğrafı.</p>
+      </div>
+
+      <div>
+        <label class="block text-xs font-bold text-slate-700 uppercase mb-1.5">Proje Açıklaması</label>
+        <textarea name="description" id="p_description" rows="3" class="w-full px-4 py-3 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-brand-500" placeholder="Projenin m² büyüklüğü, kat adedi, mimari özellikleri..."></textarea>
+      </div>
+
+      <div class="flex items-center space-x-2">
+        <input type="checkbox" name="featured" id="p_featured" class="w-4 h-4 text-brand-500 rounded border-slate-300 focus:ring-brand-500">
+        <label for="p_featured" class="text-xs font-semibold text-slate-700">Anasayfada Öne Çıkarılsın</label>
+      </div>
+
+      <div class="flex items-center justify-end space-x-3 pt-4 border-t border-slate-100">
+        <button type="button" onclick="toggleProjectModal()" class="px-5 py-3 rounded-xl border border-slate-200 text-slate-600 font-bold text-xs hover:bg-slate-50">
+          Vazgeç
+        </button>
+        <button type="submit" class="px-6 py-3 rounded-xl bg-brand-500 hover:bg-brand-600 text-dark-900 font-extrabold text-xs shadow-lg">
+          Projeyi Kaydet
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  function toggleProjectModal() {
+    const modal = document.getElementById('projectModal');
+    modal.classList.toggle('hidden');
+    if (!modal.classList.contains('hidden')) {
+      document.getElementById('projectForm').action = '/admin/projects/add';
+      document.getElementById('modalTitle').innerHTML = '<i class="fa-solid fa-camera-retro text-brand-500 mr-2"></i>Yeni Proje & Fotoğraf Ekle';
+      document.getElementById('p_title').value = '';
+      document.getElementById('p_location').value = 'İstanbul';
+      document.getElementById('p_year').value = new Date().getFullYear();
+      document.getElementById('p_description').value = '';
+      document.getElementById('p_featured').checked = false;
+      document.getElementById('p_preview').classList.add('hidden');
+    }
+  }
+
+  function editProject(pJson) {
+    const p = JSON.parse(pJson);
+    const modal = document.getElementById('projectModal');
+    modal.classList.remove('hidden');
+
+    document.getElementById('projectForm').action = '/admin/projects/edit/' + p.id;
+    document.getElementById('modalTitle').innerHTML = '<i class="fa-solid fa-pen-to-square text-blue-500 mr-2"></i>Projeyi Düzenle: ' + p.title;
+
+    document.getElementById('p_title').value = p.title || '';
+    document.getElementById('p_category').value = p.category || 'Konut';
+    document.getElementById('p_location').value = p.location || '';
+    document.getElementById('p_year').value = p.year || '';
+    document.getElementById('p_status').value = p.status || 'Tamamlandı';
+    document.getElementById('p_description').value = p.description || '';
+    document.getElementById('p_featured').checked = !!p.featured;
+
+    if (p.image) {
+      const preview = document.getElementById('p_preview');
+      preview.src = p.image;
+      preview.classList.remove('hidden');
+    }
+  }
+
+  setupImagePreview('p_imageInput', 'p_preview');
+</script>
+
+<%- include('footer') %>
+

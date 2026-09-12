@@ -1,0 +1,35 @@
+    </div> <!-- /p-4 sm:p-6 lg:p-8 -->
+  </main>
+
+  <script>
+    // Mobil Sidebar Toggle
+    const adminMobileToggle = document.getElementById('adminMobileToggle');
+    const adminSidebar = document.getElementById('adminSidebar');
+    if (adminMobileToggle && adminSidebar) {
+      adminMobileToggle.addEventListener('click', () => {
+        adminSidebar.classList.toggle('hidden');
+      });
+    }
+
+    // Resim Önizleme Yardımcısı
+    function setupImagePreview(inputId, previewId) {
+      const input = document.getElementById(inputId);
+      const preview = document.getElementById(previewId);
+      if (input && preview) {
+        input.addEventListener('change', function(e) {
+          const file = e.target.files[0];
+          if (file) {
+            const reader = new FileReader();
+            reader.onload = function(event) {
+              preview.src = event.target.result;
+              preview.classList.remove('hidden');
+            }
+            reader.readAsDataURL(file);
+          }
+        });
+      }
+    }
+  </script>
+</body>
+</html>
+

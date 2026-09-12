@@ -1,0 +1,221 @@
+<%- include('header') %>
+
+<% if (typeof success !== 'undefined' && success) { %>
+  <div class="mb-6 p-4 rounded-2xl bg-emerald-500 text-white text-sm font-semibold shadow-md flex items-center space-x-2">
+    <i class="fa-solid fa-circle-check text-lg"></i>
+    <span>Slaytlar başarıyla güncellendi! Anasayfadaki slider anında yenilendi.</span>
+  </div>
+<% } %>
+
+<!-- Başlık & Yeni Slayt Ekle Butonu -->
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+  <div>
+    <h2 class="text-xl font-bold text-dark-900">Anasayfa Slider / Banner Yönetimi</h2>
+    <p class="text-xs text-slate-500 mt-0.5">Anasayfa tepe kısmında otomatik geçiş yapan büyük karşılama slaytlarını düzenleyin veya yenisini ekleyin.</p>
+  </div>
+  <button onclick="toggleSliderModal()" class="inline-flex items-center space-x-2 bg-brand-500 hover:bg-brand-600 text-dark-900 font-extrabold px-5 py-3 rounded-xl shadow-lg transition-all text-xs">
+    <i class="fa-solid fa-plus"></i>
+    <span>Yeni Slayt Ekle</span>
+  </button>
+</div>
+
+<!-- Slaytlar Tablosu -->
+<div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+  <div class="overflow-x-auto">
+    <table class="w-full text-left text-sm text-slate-600">
+      <thead class="bg-slate-50 text-slate-500 text-[11px] font-bold uppercase tracking-wider border-b border-slate-200">
+        <tr>
+          <th class="px-6 py-4">Sıra</th>
+          <th class="px-6 py-4">Arka Plan</th>
+          <th class="px-6 py-4">Rozet & Başlık</th>
+          <th class="px-6 py-4">Butonlar</th>
+          <th class="px-6 py-4">Durum</th>
+          <th class="px-6 py-4 text-right">İşlemler</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-slate-100">
+        <% if (sliders && sliders.length > 0) { %>
+          <% sliders.forEach((sl, idx) => { %>
+            <tr class="hover:bg-slate-50/80 transition-colors">
+              <td class="px-6 py-4 font-bold text-slate-400">
+                #<%= sl.order || (idx + 1) %>
+              </td>
+              <td class="px-6 py-4">
+                <img src="<%= sl.bgImage %>" alt="<%= sl.title %>" class="w-24 h-14 rounded-xl object-cover border border-slate-200 shadow-sm">
+              </td>
+              <td class="px-6 py-4 max-w-md">
+                <span class="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-brand-500/10 text-brand-600 uppercase tracking-wider mb-1">
+                  <%= sl.badge %>
+                </span>
+                <div class="font-bold text-dark-900 text-base line-clamp-1"><%= sl.title %></div>
+                <div class="text-xs text-slate-400 line-clamp-1 mt-0.5"><%= sl.subtitle %></div>
+              </td>
+              <td class="px-6 py-4 text-xs space-y-1">
+                <div><span class="font-bold text-dark-900">1.</span> <%= sl.btnPrimaryText %> <span class="text-slate-400 font-mono">(<%= sl.btnPrimaryLink %>)</span></div>
+                <% if (sl.btnSecondaryText) { %>
+                  <div><span class="font-bold text-dark-900">2.</span> <%= sl.btnSecondaryText %> <span class="text-slate-400 font-mono">(<%= sl.btnSecondaryLink %>)</span></div>
+                <% } %>
+              </td>
+              <td class="px-6 py-4">
+                <% if (sl.active !== false) { %>
+                  <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800">Aktif</span>
+                <% } else { %>
+                  <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-600">Pasif</span>
+                <% } %>
+              </td>
+              <td class="px-6 py-4 text-right space-x-2">
+                <button onclick="editSlider('<%= JSON.stringify(sl).replace(/'/g, "\\'") %>')" class="p-2 text-slate-400 hover:text-blue-600 transition-colors" title="Düzenle">
+                  <i class="fa-solid fa-pen-to-square"></i>
+                </button>
+                <form action="/admin/sliders/delete/<%= sl.id %>" method="POST" class="inline" onsubmit="return confirm('Bu slaytı silmek istediğinizden emin misiniz?');">
+                  <button type="submit" class="p-2 text-slate-400 hover:text-rose-600 transition-colors" title="Sil">
+                    <i class="fa-solid fa-trash-can"></i>
+                  </button>
+                </form>
+              </td>
+            </tr>
+          <% }) %>
+        <% } else { %>
+          <tr>
+            <td colspan="6" class="px-6 py-12 text-center text-slate-400">
+              Henüz slayt bulunmuyor. "Yeni Slayt Ekle" butonu ile ekleyebilirsiniz.
+            </td>
+          </tr>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ================= YENİ / DÜZENLEME SLAYT MODALI ================= -->
+<div id="sliderModal" class="fixed inset-0 z-50 bg-dark-900/80 backdrop-blur-sm hidden flex items-center justify-center p-4 overflow-y-auto">
+  <div class="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl relative my-8">
+    <button onclick="toggleSliderModal()" class="absolute top-6 right-6 text-slate-400 hover:text-dark-900 text-lg">
+      <i class="fa-solid fa-xmark"></i>
+    </button>
+
+    <h3 id="sliderModalTitle" class="text-xl font-bold text-dark-900 mb-6 flex items-center space-x-2">
+      <i class="fa-solid fa-images text-brand-500"></i>
+      <span>Yeni Slayt Ekle</span>
+    </h3>
+
+    <form id="sliderForm" action="/admin/sliders/add" method="POST" enctype="multipart/form-data" class="space-y-4">
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div class="sm:col-span-2">
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1.5">Üst Rozet Metni (Badge) *</label>
+          <input type="text" name="badge" id="sl_badge" required class="w-full px-4 py-3 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-brand-500" placeholder="Örn: GÜVEN, KALİTE & 25 YILLIK TECRÜBE">
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1.5">Gösterim Sırası</label>
+          <input type="number" name="order" id="sl_order" value="1" min="1" class="w-full px-4 py-3 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-brand-500">
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-xs font-bold text-slate-700 uppercase mb-1.5">Slayt Ana Başlığı *</label>
+        <input type="text" name="title" id="sl_title" required class="w-full px-4 py-3 rounded-xl border border-slate-300 text-sm font-semibold focus:ring-2 focus:ring-brand-500" placeholder="Örn: Ağaoğulları İnşaat ile Sağlam Gelecek">
+      </div>
+
+      <div>
+        <label class="block text-xs font-bold text-slate-700 uppercase mb-1.5">Alt Açıklama Metni</label>
+        <textarea name="subtitle" id="sl_subtitle" rows="3" class="w-full px-4 py-3 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-brand-500" placeholder="Slaytın altında yer alacak açıklayıcı kurumsal metin..."></textarea>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1.5">1. Buton Yazısı</label>
+          <input type="text" name="btnPrimaryText" id="sl_btnPrimaryText" value="Projelerimizi İnceleyin" class="w-full px-3 py-2.5 rounded-xl border border-slate-300 text-sm">
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1.5">1. Buton Linki</label>
+          <input type="text" name="btnPrimaryLink" id="sl_btnPrimaryLink" value="/projeler" class="w-full px-3 py-2.5 rounded-xl border border-slate-300 text-sm">
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1.5">2. Buton Yazısı</label>
+          <input type="text" name="btnSecondaryText" id="sl_btnSecondaryText" value="Hemen İletişime Geçin" class="w-full px-3 py-2.5 rounded-xl border border-slate-300 text-sm">
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1.5">2. Buton Linki</label>
+          <input type="text" name="btnSecondaryLink" id="sl_btnSecondaryLink" value="/iletisim" class="w-full px-3 py-2.5 rounded-xl border border-slate-300 text-sm">
+        </div>
+      </div>
+
+      <!-- Arka Plan Fotoğrafı Yükleme -->
+      <div class="bg-slate-50 p-4 rounded-2xl border-2 border-dashed border-slate-300 space-y-2">
+        <label class="block text-xs font-bold text-dark-900 uppercase">Slayt Arka Plan Fotoğrafı</label>
+        <div class="flex items-center space-x-4">
+          <img id="sl_preview" src="" alt="Önizleme" class="w-20 h-12 rounded-lg object-cover border border-slate-300 hidden">
+          <input type="file" name="bgImage" id="sl_imageInput" accept="image/*" class="block w-full text-xs text-slate-500 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-brand-500 file:text-dark-900 cursor-pointer">
+        </div>
+        <p class="text-[11px] text-slate-400">Yüksek çözünürlüklü (1920x1080 veya üzeri) yatay inşaat/mimarlık fotoğrafı önerilir.</p>
+      </div>
+
+      <div class="flex items-center space-x-2 pt-1">
+        <input type="checkbox" name="active" id="sl_active" checked class="w-4 h-4 text-brand-500 rounded border-slate-300 focus:ring-brand-500">
+        <label for="sl_active" class="text-xs font-semibold text-slate-700">Slayt Aktif (Slider'da Gösterilsin)</label>
+      </div>
+
+      <div class="flex items-center justify-end space-x-3 pt-4 border-t border-slate-100">
+        <button type="button" onclick="toggleSliderModal()" class="px-5 py-3 rounded-xl border border-slate-200 text-slate-600 font-bold text-xs hover:bg-slate-50">
+          Vazgeç
+        </button>
+        <button type="submit" class="px-6 py-3 rounded-xl bg-brand-500 hover:bg-brand-600 text-dark-900 font-extrabold text-xs shadow-lg">
+          Slaytı Kaydet
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  function toggleSliderModal() {
+    const modal = document.getElementById('sliderModal');
+    modal.classList.toggle('hidden');
+    if (!modal.classList.contains('hidden')) {
+      document.getElementById('sliderForm').action = '/admin/sliders/add';
+      document.getElementById('sliderModalTitle').innerHTML = '<i class="fa-solid fa-images text-brand-500 mr-2"></i>Yeni Slayt Ekle';
+      document.getElementById('sl_badge').value = 'GÜVEN, KALİTE & 25 YILLIK TECRÜBE';
+      document.getElementById('sl_title').value = '';
+      document.getElementById('sl_subtitle').value = '';
+      document.getElementById('sl_btnPrimaryText').value = 'Projelerimizi İnceleyin';
+      document.getElementById('sl_btnPrimaryLink').value = '/projeler';
+      document.getElementById('sl_btnSecondaryText').value = 'Hemen İletişime Geçin';
+      document.getElementById('sl_btnSecondaryLink').value = '/iletisim';
+      document.getElementById('sl_order').value = '1';
+      document.getElementById('sl_active').checked = true;
+      document.getElementById('sl_preview').classList.add('hidden');
+    }
+  }
+
+  function editSlider(slJson) {
+    const sl = JSON.parse(slJson);
+    const modal = document.getElementById('sliderModal');
+    modal.classList.remove('hidden');
+
+    document.getElementById('sliderForm').action = '/admin/sliders/edit/' + sl.id;
+    document.getElementById('sliderModalTitle').innerHTML = '<i class="fa-solid fa-pen-to-square text-blue-500 mr-2"></i>Slaytı Düzenle';
+
+    document.getElementById('sl_badge').value = sl.badge || '';
+    document.getElementById('sl_title').value = sl.title || '';
+    document.getElementById('sl_subtitle').value = sl.subtitle || '';
+    document.getElementById('sl_btnPrimaryText').value = sl.btnPrimaryText || '';
+    document.getElementById('sl_btnPrimaryLink').value = sl.btnPrimaryLink || '';
+    document.getElementById('sl_btnSecondaryText').value = sl.btnSecondaryText || '';
+    document.getElementById('sl_btnSecondaryLink').value = sl.btnSecondaryLink || '';
+    document.getElementById('sl_order').value = sl.order || 1;
+    document.getElementById('sl_active').checked = sl.active !== false;
+
+    if (sl.bgImage) {
+      const preview = document.getElementById('sl_preview');
+      preview.src = sl.bgImage;
+      preview.classList.remove('hidden');
+    }
+  }
+
+  setupImagePreview('sl_imageInput', 'sl_preview');
+</script>
+
+<%- include('footer') %>

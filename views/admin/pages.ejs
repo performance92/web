@@ -1,0 +1,96 @@
+<%- include('header') %>
+
+<% if (typeof success !== 'undefined' && success) { %>
+  <div class="mb-6 p-4 rounded-2xl bg-emerald-500 text-white text-sm font-semibold shadow-md flex items-center space-x-2">
+    <i class="fa-solid fa-circle-check text-lg"></i>
+    <span>Sayfa başarıyla kaydedildi ve menü güncellendi!</span>
+  </div>
+<% } %>
+
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+  <div>
+    <h2 class="text-xl font-bold text-dark-900">Dinamik Sayfa Yönetimi</h2>
+    <p class="text-xs text-slate-500 mt-0.5">Sitenize dilediğiniz kadar yeni kurumsal sayfa ekleyebilir, düzenleyebilir veya çıkarabilirsiniz.</p>
+  </div>
+  <a href="/admin/pages/new" class="inline-flex items-center space-x-2 bg-brand-500 hover:bg-brand-600 text-dark-900 font-extrabold px-5 py-3 rounded-xl shadow-lg transition-all text-xs">
+    <i class="fa-solid fa-plus"></i>
+    <span>Yeni Sayfa Ekle</span>
+  </a>
+</div>
+
+<!-- Sayfalar Tablosu -->
+<div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+  <div class="overflow-x-auto">
+    <table class="w-full text-left text-sm text-slate-600">
+      <thead class="bg-slate-50 text-slate-500 text-[11px] font-bold uppercase tracking-wider border-b border-slate-200">
+        <tr>
+          <th class="px-6 py-4">Banner</th>
+          <th class="px-6 py-4">Sayfa Başlığı</th>
+          <th class="px-6 py-4">URL Slug (Bağlantı)</th>
+          <th class="px-6 py-4">Menüde Göster</th>
+          <th class="px-6 py-4">Durum</th>
+          <th class="px-6 py-4 text-right">İşlemler</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-slate-100">
+        <% if (pages && pages.length > 0) { %>
+          <% pages.forEach(p => { %>
+            <tr class="hover:bg-slate-50/80 transition-colors">
+              <td class="px-6 py-4">
+                <img src="<%= p.bannerImage %>" alt="<%= p.title %>" class="w-16 h-10 rounded-lg object-cover border border-slate-200 shadow-sm">
+              </td>
+              <td class="px-6 py-4 font-bold text-dark-900">
+                <%= p.title %>
+              </td>
+              <td class="px-6 py-4">
+                <code class="text-xs text-brand-600 bg-amber-50 px-2 py-1 rounded font-mono">/sayfa/<%= p.slug %></code>
+              </td>
+              <td class="px-6 py-4">
+                <% if (p.showInNav !== false) { %>
+                  <span class="inline-flex items-center space-x-1 text-xs font-semibold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full">
+                    <i class="fa-solid fa-check text-[10px]"></i>
+                    <span>Üst Menüde Açık</span>
+                  </span>
+                <% } else { %>
+                  <span class="inline-flex items-center space-x-1 text-xs font-semibold text-slate-500 bg-slate-100 px-2.5 py-1 rounded-full">
+                    <i class="fa-solid fa-eye-slash text-[10px]"></i>
+                    <span>Gizli</span>
+                  </span>
+                <% } %>
+              </td>
+              <td class="px-6 py-4">
+                <% if (p.active !== false) { %>
+                  <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800">Yayında</span>
+                <% } else { %>
+                  <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-600">Taslak</span>
+                <% } %>
+              </td>
+              <td class="px-6 py-4 text-right space-x-2">
+                <a href="/sayfa/<%= p.slug %>" target="_blank" class="p-2 text-slate-400 hover:text-brand-600 transition-colors" title="Sayfayı Canlı Gör">
+                  <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                </a>
+                <a href="/admin/pages/edit/<%= p.id %>" class="p-2 text-slate-400 hover:text-blue-600 transition-colors" title="Düzenle">
+                  <i class="fa-solid fa-pen-to-square"></i>
+                </a>
+                <form action="/admin/pages/delete/<%= p.id %>" method="POST" class="inline" onsubmit="return confirm('Bu sayfayı silmek (çıkarmak) istediğinizden emin misiniz?');">
+                  <button type="submit" class="p-2 text-slate-400 hover:text-rose-600 transition-colors" title="Sayfayı Sil">
+                    <i class="fa-solid fa-trash-can"></i>
+                  </button>
+                </form>
+              </td>
+            </tr>
+          <% }) %>
+        <% } else { %>
+          <tr>
+            <td colspan="6" class="px-6 py-12 text-center text-slate-400">
+              Henüz özel sayfa eklenmemiş. "Yeni Sayfa Ekle" butonuna basarak ilk sayfanızı oluşturabilirsiniz.
+            </td>
+          </tr>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<%- include('footer') %>
+

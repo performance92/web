@@ -1,0 +1,150 @@
+<%- include('header') %>
+
+<% if (typeof success !== 'undefined' && success) { %>
+  <div class="mb-6 p-4 rounded-2xl bg-emerald-500 text-white text-sm font-semibold shadow-md flex items-center space-x-2">
+    <i class="fa-solid fa-circle-check text-lg"></i>
+    <span>Hizmetler listesi başarıyla güncellendi!</span>
+  </div>
+<% } %>
+
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+  <div>
+    <h2 class="text-xl font-bold text-dark-900">Hizmet Yönetimi</h2>
+    <p class="text-xs text-slate-500 mt-0.5">Sitenizde listelenen inşaat, taahhüt ve mimarlık hizmetlerini düzenleyin veya yenisini ekleyin.</p>
+  </div>
+  <button onclick="toggleServiceModal()" class="inline-flex items-center space-x-2 bg-brand-500 hover:bg-brand-600 text-dark-900 font-extrabold px-5 py-3 rounded-xl shadow-lg transition-all text-xs">
+    <i class="fa-solid fa-plus"></i>
+    <span>Yeni Hizmet Ekle</span>
+  </button>
+</div>
+
+<!-- Hizmetler Tablosu -->
+<div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+  <div class="overflow-x-auto">
+    <table class="w-full text-left text-sm text-slate-600">
+      <thead class="bg-slate-50 text-slate-500 text-[11px] font-bold uppercase tracking-wider border-b border-slate-200">
+        <tr>
+          <th class="px-6 py-4">Görsel</th>
+          <th class="px-6 py-4">Hizmet Adı</th>
+          <th class="px-6 py-4">Kısa Açıklama</th>
+          <th class="px-6 py-4">İkon</th>
+          <th class="px-6 py-4 text-right">İşlemler</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-slate-100">
+        <% if (services && services.length > 0) { %>
+          <% services.forEach(s => { %>
+            <tr class="hover:bg-slate-50/80 transition-colors">
+              <td class="px-6 py-4">
+                <img src="<%= s.image %>" alt="<%= s.title %>" class="w-16 h-12 rounded-lg object-cover border border-slate-200 shadow-sm">
+              </td>
+              <td class="px-6 py-4 font-bold text-dark-900">
+                <%= s.title %>
+              </td>
+              <td class="px-6 py-4 max-w-sm">
+                <div class="text-xs text-slate-600 line-clamp-2"><%= s.shortDesc %></div>
+              </td>
+              <td class="px-6 py-4">
+                <div class="w-9 h-9 rounded-lg bg-slate-100 text-brand-600 flex items-center justify-center">
+                  <i class="fa-solid <%= s.icon || 'fa-building' %>"></i>
+                </div>
+              </td>
+              <td class="px-6 py-4 text-right space-x-2">
+                <button onclick="editService('<%= JSON.stringify(s).replace(/'/g, "\\'") %>')" class="p-2 text-slate-400 hover:text-blue-600 transition-colors" title="Düzenle">
+                  <i class="fa-solid fa-pen-to-square"></i>
+                </button>
+                <form action="/admin/services/delete/<%= s.id %>" method="POST" class="inline" onsubmit="return confirm('Bu hizmeti silmek istediğinizden emin misiniz?');">
+                  <button type="submit" class="p-2 text-slate-400 hover:text-rose-600 transition-colors" title="Sil">
+                    <i class="fa-solid fa-trash-can"></i>
+                  </button>
+                </form>
+              </td>
+            </tr>
+          <% }) %>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Hizmet Modalı -->
+<div id="serviceModal" class="fixed inset-0 z-50 bg-dark-900/80 backdrop-blur-sm hidden flex items-center justify-center p-4 overflow-y-auto">
+  <div class="bg-white rounded-3xl max-w-xl w-full p-6 sm:p-8 shadow-2xl relative my-8">
+    <button onclick="toggleServiceModal()" class="absolute top-6 right-6 text-slate-400 hover:text-dark-900 text-lg">
+      <i class="fa-solid fa-xmark"></i>
+    </button>
+
+    <h3 id="serviceModalTitle" class="text-xl font-bold text-dark-900 mb-6 flex items-center space-x-2">
+      <i class="fa-solid fa-trowel-bricks text-brand-500"></i>
+      <span>Yeni Hizmet Ekle</span>
+    </h3>
+
+    <form id="serviceForm" action="/admin/services/add" method="POST" enctype="multipart/form-data" class="space-y-4">
+      <div>
+        <label class="block text-xs font-bold text-slate-700 uppercase mb-1.5">Hizmet Başlığı *</label>
+        <input type="text" name="title" id="s_title" required class="w-full px-4 py-3 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-brand-500" placeholder="Örn: Fabrika ve Sanayi Tesisleri">
+      </div>
+
+      <div>
+        <label class="block text-xs font-bold text-slate-700 uppercase mb-1.5">FontAwesome İkon Sınıfı</label>
+        <input type="text" name="icon" id="s_icon" value="fa-building" class="w-full px-4 py-3 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-brand-500 font-mono" placeholder="fa-building, fa-industry, fa-house...">
+      </div>
+
+      <div>
+        <label class="block text-xs font-bold text-slate-700 uppercase mb-1.5">Kısa Açıklama (Kart İçin) *</label>
+        <textarea name="shortDesc" id="s_shortDesc" rows="2" required class="w-full px-4 py-3 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-brand-500"></textarea>
+      </div>
+
+      <div>
+        <label class="block text-xs font-bold text-slate-700 uppercase mb-1.5">Detaylı Açıklama</label>
+        <textarea name="description" id="s_description" rows="4" class="w-full px-4 py-3 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-brand-500"></textarea>
+      </div>
+
+      <div>
+        <label class="block text-xs font-bold text-slate-700 uppercase mb-1.5">Hizmet Fotoğrafı Yükle</label>
+        <input type="file" name="image" accept="image/*" class="block w-full text-xs text-slate-500 file:mr-3 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-brand-500 file:text-dark-900 cursor-pointer">
+      </div>
+
+      <div class="flex items-center justify-end space-x-3 pt-4 border-t border-slate-100">
+        <button type="button" onclick="toggleServiceModal()" class="px-5 py-3 rounded-xl border border-slate-200 text-slate-600 font-bold text-xs hover:bg-slate-50">
+          Vazgeç
+        </button>
+        <button type="submit" class="px-6 py-3 rounded-xl bg-brand-500 hover:bg-brand-600 text-dark-900 font-extrabold text-xs shadow-lg">
+          Kaydet
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  function toggleServiceModal() {
+    const modal = document.getElementById('serviceModal');
+    modal.classList.toggle('hidden');
+    if (!modal.classList.contains('hidden')) {
+      document.getElementById('serviceForm').action = '/admin/services/add';
+      document.getElementById('serviceModalTitle').innerHTML = '<i class="fa-solid fa-trowel-bricks text-brand-500 mr-2"></i>Yeni Hizmet Ekle';
+      document.getElementById('s_title').value = '';
+      document.getElementById('s_icon').value = 'fa-building';
+      document.getElementById('s_shortDesc').value = '';
+      document.getElementById('s_description').value = '';
+    }
+  }
+
+  function editService(sJson) {
+    const s = JSON.parse(sJson);
+    const modal = document.getElementById('serviceModal');
+    modal.classList.remove('hidden');
+
+    document.getElementById('serviceForm').action = '/admin/services/edit/' + s.id;
+    document.getElementById('serviceModalTitle').innerHTML = '<i class="fa-solid fa-pen-to-square text-blue-500 mr-2"></i>Hizmeti Düzenle: ' + s.title;
+
+    document.getElementById('s_title').value = s.title || '';
+    document.getElementById('s_icon').value = s.icon || 'fa-building';
+    document.getElementById('s_shortDesc').value = s.shortDesc || '';
+    document.getElementById('s_description').value = s.description || '';
+  }
+</script>
+
+<%- include('footer') %>
+

@@ -1,0 +1,142 @@
+<%- include('header') %>
+
+<div class="max-w-4xl mx-auto space-y-6">
+  
+  <div class="flex items-center justify-between">
+    <div class="flex items-center space-x-3">
+      <a href="/admin/pages" class="w-10 h-10 rounded-xl bg-white border border-slate-200 text-slate-500 hover:text-dark-900 flex items-center justify-center transition-colors">
+        <i class="fa-solid fa-arrow-left"></i>
+      </a>
+      <div>
+        <h2 class="text-xl font-bold text-dark-900">
+          <%= isEdit ? 'Sayfayı Düzenle: ' + page.title : 'Yeni Sayfa Ekle' %>
+        </h2>
+        <p class="text-xs text-slate-500">Eklediğiniz sayfa menüde yer alabilir ve doğrudan URL bağlantısına sahip olur.</p>
+      </div>
+    </div>
+  </div>
+
+  <form action="<%= isEdit ? '/admin/pages/edit/' + page.id : '/admin/pages/add' %>" method="POST" enctype="multipart/form-data" class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6">
+    
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+      <div>
+        <label class="block text-xs font-bold text-slate-700 uppercase mb-1.5">Sayfa Başlığı *</label>
+        <input type="text" name="title" id="pageTitleInput" value="<%= page ? page.title : '' %>" required class="w-full px-4 py-3 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-brand-500" placeholder="Örn: Kalite ve Çevre Belgelerimiz">
+      </div>
+
+      <div>
+        <label class="block text-xs font-bold text-slate-700 uppercase mb-1.5">URL Bağlantısı (Slug)</label>
+        <div class="flex">
+          <span class="inline-flex items-center px-3 rounded-l-xl border border-r-0 border-slate-300 bg-slate-50 text-slate-500 text-xs font-mono">
+            /sayfa/
+          </span>
+          <input type="text" name="slug" id="pageSlugInput" value="<%= page ? page.slug : '' %>" class="w-full px-4 py-3 rounded-r-xl border border-slate-300 text-sm font-mono text-brand-600 focus:ring-2 focus:ring-brand-500" placeholder="otomatik-olusturulur">
+        </div>
+      </div>
+    </div>
+
+    <!-- Banner Görseli Yükleme -->
+    <div class="bg-slate-50 p-5 rounded-2xl border-2 border-dashed border-slate-300 space-y-3">
+      <label class="block text-xs font-bold text-dark-900 uppercase">Sayfa Üst Banner Fotoğrafı</label>
+      <div class="flex items-center space-x-4">
+        <% if (page && page.bannerImage) { %>
+          <img id="bannerPreview" src="<%= page.bannerImage %>" alt="Mevcut Banner" class="w-24 h-14 rounded-xl object-cover border border-slate-300">
+        <% } else { %>
+          <img id="bannerPreview" src="" alt="Önizleme" class="w-24 h-14 rounded-xl object-cover border border-slate-300 hidden">
+        <% } %>
+        <input type="file" name="bannerImage" id="bannerImageInput" accept="image/*" class="block w-full text-xs text-slate-500 file:mr-3 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-brand-500 file:text-dark-900 cursor-pointer">
+      </div>
+      <p class="text-[11px] text-slate-400">Sayfanın üst kısmında arka planda gösterilecek geniş yatay fotoğraf.</p>
+    </div>
+
+    <div>
+      <label class="block text-xs font-bold text-slate-700 uppercase mb-1.5">Arama Motoru Açıklaması (Meta Description)</label>
+      <input type="text" name="metaDesc" value="<%= page ? page.metaDesc : '' %>" class="w-full px-4 py-3 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-brand-500" placeholder="Sayfanın Google ve sosyal medyada çıkacak kısa 1-2 cümlelik özeti">
+    </div>
+
+    <!-- Zengin İçerik Editörü (HTML / Markdown) -->
+    <div>
+      <div class="flex items-center justify-between mb-1.5">
+        <label class="block text-xs font-bold text-slate-700 uppercase">Sayfa İçeriği (HTML / Zengin Metin) *</label>
+        <div class="flex space-x-1">
+          <button type="button" onclick="insertTag('<h2>', '</h2>')" class="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs rounded font-bold" title="Alt Başlık">H2</button>
+          <button type="button" onclick="insertTag('<h3>', '</h3>')" class="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs rounded font-bold" title="Küçük Başlık">H3</button>
+          <button type="button" onclick="insertTag('<p>', '</p>')" class="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs rounded font-bold" title="Paragraf">P</button>
+          <button type="button" onclick="insertTag('<strong>', '</strong>')" class="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs rounded font-bold" title="Kalın Yazı">B</button>
+          <button type="button" onclick="insertTag('<ul>\n  <li>', '</li>\n</ul>')" class="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs rounded font-bold" title="Madde İşareti">Liste</button>
+        </div>
+      </div>
+      <textarea name="content" id="pageContent" rows="12" required class="w-full px-4 py-3 rounded-xl border border-slate-300 font-mono text-sm leading-relaxed focus:ring-2 focus:ring-brand-500"><%= page ? page.content : '' %></textarea>
+    </div>
+
+    <!-- Seçenekler: Menüde Göster & Aktiflik -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 bg-slate-50 p-4 rounded-2xl border border-slate-200">
+      <div class="flex items-center space-x-3">
+        <input type="checkbox" name="showInNav" id="showInNav" <%= !page || page.showInNav !== false ? 'checked' : '' %> class="w-5 h-5 text-brand-500 rounded border-slate-300 focus:ring-brand-500">
+        <div>
+          <label for="showInNav" class="text-sm font-bold text-dark-900 cursor-pointer">Üst Menüde (Navbar) Göster</label>
+          <p class="text-[11px] text-slate-500">İşaretlenirse sitenin üst navigasyon menüsüne otomatik eklenir.</p>
+        </div>
+      </div>
+
+      <div class="flex items-center space-x-3">
+        <input type="checkbox" name="active" id="active" <%= !page || page.active !== false ? 'checked' : '' %> class="w-5 h-5 text-brand-500 rounded border-slate-300 focus:ring-brand-500">
+        <div>
+          <label for="active" class="text-sm font-bold text-dark-900 cursor-pointer">Sayfa Yayında (Aktif)</label>
+          <p class="text-[11px] text-slate-500">İşareti kaldırırsanız sayfa taslak olarak saklanır, yayından kaldırılır.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex items-center justify-end space-x-3 pt-4 border-t border-slate-100">
+      <a href="/admin/pages" class="px-6 py-3.5 rounded-xl border border-slate-200 text-slate-600 font-bold text-xs hover:bg-slate-50 transition-colors">
+        Vazgeç
+      </a>
+      <button type="submit" class="px-8 py-3.5 rounded-xl bg-brand-500 hover:bg-brand-600 text-dark-900 font-extrabold text-sm shadow-lg transition-all">
+        <%= isEdit ? 'Değişiklikleri Güncelle' : 'Sayfayı Yayınla' %>
+      </button>
+    </div>
+
+  </form>
+
+</div>
+
+<script>
+  setupImagePreview('bannerImageInput', 'bannerPreview');
+
+  // Otomatik Slug üretici
+  const titleInput = document.getElementById('pageTitleInput');
+  const slugInput = document.getElementById('pageSlugInput');
+  
+  if (titleInput && slugInput && !<%= isEdit %>) {
+    titleInput.addEventListener('input', () => {
+      const slug = titleInput.value
+        .toLowerCase()
+        .replace(/ğ/g, 'g')
+        .replace(/ü/g, 'u')
+        .replace(/ş/g, 's')
+        .replace(/ı/g, 'i')
+        .replace(/ö/g, 'o')
+        .replace(/ç/g, 'c')
+        .replace(/[^a-z0-9\s-]/g, '')
+        .trim()
+        .replace(/\s+/g, '-');
+      slugInput.value = slug;
+    });
+  }
+
+  // HTML Etiketi ekleme yardımcısı
+  function insertTag(startTag, endTag) {
+    const textarea = document.getElementById('pageContent');
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const selected = textarea.value.substring(start, end);
+    const replacement = startTag + (selected || 'Metin buraya gelecek') + endTag;
+    textarea.value = textarea.value.substring(0, start) + replacement + textarea.value.substring(end);
+    textarea.focus();
+    textarea.setSelectionRange(start + startTag.length, start + replacement.length - endTag.length);
+  }
+</script>
+
+<%- include('footer') %>
+

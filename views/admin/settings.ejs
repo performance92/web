@@ -1,0 +1,274 @@
+<%- include('header') %>
+
+<% if (typeof success !== 'undefined' && success) { %>
+  <div class="mb-6 p-4 rounded-2xl bg-emerald-500 text-white text-sm font-semibold shadow-md flex items-center space-x-2">
+    <i class="fa-solid fa-circle-check text-lg"></i>
+    <span>Ayarlar ve Logo başarıyla güncellendi! Yapılan değişiklikler anında web sitesine yansıtıldı.</span>
+  </div>
+<% } %>
+
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+  
+  <!-- Sol 8 Kolon: Genel Ayarlar & Logo Formu -->
+  <div class="lg:col-span-8 space-y-8">
+    <form action="/admin/settings" method="POST" enctype="multipart/form-data" class="space-y-8">
+      
+      <!-- ================= 1. LOGO & BRANDING YÜKLEME ================= -->
+      <div class="bg-white p-6 sm:p-8 rounded-3xl border border-slate-200 shadow-sm space-y-6">
+        <div class="flex items-center space-x-3 pb-4 border-b border-slate-100">
+          <div class="w-10 h-10 rounded-xl bg-brand-500/10 text-brand-600 flex items-center justify-center text-lg">
+            <i class="fa-solid fa-image"></i>
+          </div>
+          <div>
+            <h3 class="text-base font-bold text-dark-900">Kurumsal Logo ve Favicon Yükleme</h3>
+            <p class="text-xs text-slate-500">Yüklediğiniz logo anında web sitesinin tüm üst menü ve alt bilgi (footer) alanlarında görüntülenir.</p>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          
+          <!-- Logo Yükleme -->
+          <div class="bg-slate-50 border-2 border-dashed border-slate-300 rounded-2xl p-5 text-center space-y-3 relative group hover:border-brand-500 transition-colors">
+            <label class="block text-xs font-bold text-dark-900 uppercase">Site Ana Logosu</label>
+            
+            <div class="h-24 flex items-center justify-center bg-white rounded-xl border border-slate-200 p-2 overflow-hidden">
+              <% if (settings.logoUrl) { %>
+                <img id="logoPreview" src="<%= settings.logoUrl %>" alt="Site Logosu" class="max-h-full max-w-full object-contain">
+              <% } else { %>
+                <div id="logoDefaultPlaceholder" class="flex items-center space-x-2 text-dark-900 font-bold">
+                  <i class="fa-solid fa-helmet-safety text-brand-500 text-2xl"></i>
+                  <span><%= settings.siteTitle %> (Varsayılan Logo)</span>
+                </div>
+                <img id="logoPreview" src="" alt="Önizleme" class="max-h-full max-w-full object-contain hidden">
+              <% } %>
+            </div>
+
+            <div class="text-[11px] text-slate-500">
+              Şeffaf arka planlı PNG veya SVG önerilir (Maks. 10MB).
+            </div>
+
+            <input type="file" name="logo" id="logoInput" accept="image/*" class="block w-full text-xs text-slate-500 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-brand-500 file:text-dark-900 hover:file:bg-brand-600 cursor-pointer">
+          </div>
+
+          <!-- Favicon Yükleme -->
+          <div class="bg-slate-50 border-2 border-dashed border-slate-300 rounded-2xl p-5 text-center space-y-3 relative group hover:border-brand-500 transition-colors">
+            <label class="block text-xs font-bold text-dark-900 uppercase">Tarayıcı İkonu (Favicon)</label>
+            
+            <div class="h-24 flex items-center justify-center bg-white rounded-xl border border-slate-200 p-2">
+              <% if (settings.faviconUrl) { %>
+                <img id="faviconPreview" src="<%= settings.faviconUrl %>" alt="Favicon" class="w-10 h-10 object-contain">
+              <% } else { %>
+                <div id="favDefaultPlaceholder" class="w-10 h-10 rounded-lg bg-brand-500 flex items-center justify-center text-dark-900 font-bold">
+                  <i class="fa-solid fa-helmet-safety"></i>
+                </div>
+                <img id="faviconPreview" src="" alt="Önizleme" class="w-10 h-10 object-contain hidden">
+              <% } %>
+            </div>
+
+            <div class="text-[11px] text-slate-500">
+              Tarayıcı sekmesinde görünen kare simge (ICO, PNG veya SVG).
+            </div>
+
+            <input type="file" name="favicon" id="faviconInput" accept="image/*" class="block w-full text-xs text-slate-500 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-brand-500 file:text-dark-900 hover:file:bg-brand-600 cursor-pointer">
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ================= 2. GENEL SİTE & ŞİRKET BİLGİLERİ ================= -->
+      <div class="bg-white p-6 sm:p-8 rounded-3xl border border-slate-200 shadow-sm space-y-6">
+        <div class="flex items-center space-x-3 pb-4 border-b border-slate-100">
+          <div class="w-10 h-10 rounded-xl bg-blue-500/10 text-blue-600 flex items-center justify-center text-lg">
+            <i class="fa-solid fa-building"></i>
+          </div>
+          <div>
+            <h3 class="text-base font-bold text-dark-900">Şirket & Başlık Ayarları</h3>
+            <p class="text-xs text-slate-500">Web sitesinin başlığı, sloganı ve genel tanıtımı.</p>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1.5">Şirket / Site Başlığı *</label>
+            <input type="text" name="siteTitle" value="<%= settings.siteTitle %>" required class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm">
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1.5">Kurumsal Slogan</label>
+            <input type="text" name="siteSlogan" value="<%= settings.siteSlogan %>" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1.5">Site Açıklaması (Meta Description)</label>
+          <textarea name="siteDescription" rows="2" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm"><%= settings.siteDescription %></textarea>
+        </div>
+      </div>
+
+      <!-- ================= 3. İLETİŞİM BİLGİLERİ ================= -->
+      <div class="bg-white p-6 sm:p-8 rounded-3xl border border-slate-200 shadow-sm space-y-6">
+        <div class="flex items-center space-x-3 pb-4 border-b border-slate-100">
+          <div class="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-600 flex items-center justify-center text-lg">
+            <i class="fa-solid fa-address-book"></i>
+          </div>
+          <div>
+            <h3 class="text-base font-bold text-dark-900">İletişim & Lokasyon Bilgileri</h3>
+            <p class="text-xs text-slate-500">Ziyaretçilerin size ulaşacağı telefon, e-posta, WhatsApp ve adres bilgileri.</p>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1.5">Sabit Telefon</label>
+            <input type="text" name="phone" value="<%= settings.phone %>" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm">
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1.5">GSM / Mobil Telefon</label>
+            <input type="text" name="phone2" value="<%= settings.phone2 %>" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm">
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1.5">WhatsApp Numarası</label>
+            <input type="text" name="whatsapp" value="<%= settings.whatsapp %>" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm" placeholder="90532XXXXXXX">
+            <span class="text-[10px] text-slate-400">Ülke kodu ile (örn: 905325550192)</span>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1.5">Kurumsal E-Posta</label>
+            <input type="email" name="email" value="<%= settings.email %>" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm">
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1.5">Çalışma Saatleri</label>
+            <input type="text" name="workingHours" value="<%= settings.workingHours %>" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1.5">Açık Adres</label>
+          <input type="text" name="address" value="<%= settings.address %>" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm">
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1.5">Google Maps Embed URL</label>
+          <input type="text" name="mapsEmbed" value="<%= settings.mapsEmbed %>" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm">
+        </div>
+      </div>
+
+      <!-- ================= 4. SOSYAL MEDYA ================= -->
+      <div class="bg-white p-6 sm:p-8 rounded-3xl border border-slate-200 shadow-sm space-y-6">
+        <div class="flex items-center space-x-3 pb-4 border-b border-slate-100">
+          <div class="w-10 h-10 rounded-xl bg-purple-500/10 text-purple-600 flex items-center justify-center text-lg">
+            <i class="fa-solid fa-share-nodes"></i>
+          </div>
+          <div>
+            <h3 class="text-base font-bold text-dark-900">Sosyal Medya Hesapları</h3>
+            <p class="text-xs text-slate-500">Boş bıraktığınız sosyal medya hesaplarının ikonları sitede gizlenir.</p>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1.5"><i class="fa-brands fa-instagram text-rose-500 mr-1"></i> Instagram</label>
+            <input type="url" name="social_instagram" value="<%= settings.social.instagram %>" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm" placeholder="https://instagram.com/...">
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1.5"><i class="fa-brands fa-linkedin text-blue-600 mr-1"></i> LinkedIn</label>
+            <input type="url" name="social_linkedin" value="<%= settings.social.linkedin %>" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm" placeholder="https://linkedin.com/in/...">
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1.5"><i class="fa-brands fa-facebook text-blue-500 mr-1"></i> Facebook</label>
+            <input type="url" name="social_facebook" value="<%= settings.social.facebook %>" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm" placeholder="https://facebook.com/...">
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1.5"><i class="fa-brands fa-youtube text-red-500 mr-1"></i> YouTube</label>
+            <input type="url" name="social_youtube" value="<%= settings.social.youtube %>" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm" placeholder="https://youtube.com/...">
+          </div>
+        </div>
+      </div>
+
+      <!-- Kaydet Butonu -->
+      <div class="flex items-center justify-end">
+        <button type="submit" class="bg-brand-500 hover:bg-brand-600 text-dark-900 font-extrabold px-8 py-4 rounded-2xl shadow-lg transition-all flex items-center space-x-2 text-base">
+          <i class="fa-solid fa-floppy-disk"></i>
+          <span>Ayarları ve Logoyu Kaydet</span>
+        </button>
+      </div>
+
+    </form>
+  </div>
+
+  <!-- Sağ 4 Kolon: Şifre Yenileme & Yardım -->
+  <div class="lg:col-span-4 space-y-6">
+    
+    <!-- Şifre Değiştirme -->
+    <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-4">
+      <div class="flex items-center space-x-2 text-dark-900 font-bold text-base pb-3 border-b border-slate-100">
+        <i class="fa-solid fa-key text-brand-500"></i>
+        <span>Yönetici Şifresini Değiştir</span>
+      </div>
+
+      <form action="/admin/password" method="POST" class="space-y-4">
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Mevcut Şifre</label>
+          <input type="password" name="currentPassword" required class="w-full px-3 py-2.5 rounded-xl border border-slate-300 text-sm">
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Yeni Şifre</label>
+          <input type="password" name="newPassword" required minlength="6" class="w-full px-3 py-2.5 rounded-xl border border-slate-300 text-sm">
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Yeni Şifre (Tekrar)</label>
+          <input type="password" name="confirmPassword" required minlength="6" class="w-full px-3 py-2.5 rounded-xl border border-slate-300 text-sm">
+        </div>
+        <button type="submit" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3 rounded-xl text-xs transition-colors">
+          Şifreyi Güncelle
+        </button>
+      </form>
+    </div>
+
+    <!-- Bilgi Kutusu -->
+    <div class="bg-amber-50 border border-amber-200 rounded-3xl p-6 text-amber-900 space-y-2">
+      <div class="flex items-center space-x-2 font-bold text-sm">
+        <i class="fa-solid fa-lightbulb text-amber-500"></i>
+        <span>İpucu</span>
+      </div>
+      <p class="text-xs leading-relaxed">
+        Buradan yükleyeceğiniz şirket logosu otomatik olarak web sitesinin üst menüsünde (Header) ve alt kısmında (Footer) yerini alır. İstediğiniz an yeni bir logo yükleyerek güncelleyebilirsiniz.
+      </p>
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+  // Logo ve Favicon canlı önizleme scripti
+  setupImagePreview('logoInput', 'logoPreview');
+  setupImagePreview('faviconInput', 'faviconPreview');
+
+  const logoInput = document.getElementById('logoInput');
+  if (logoInput) {
+    logoInput.addEventListener('change', () => {
+      const def = document.getElementById('logoDefaultPlaceholder');
+      if (def) def.classList.add('hidden');
+    });
+  }
+
+  const faviconInput = document.getElementById('faviconInput');
+  if (faviconInput) {
+    faviconInput.addEventListener('change', () => {
+      const def = document.getElementById('favDefaultPlaceholder');
+      if (def) def.classList.add('hidden');
+    });
+  }
+</script>
+
+<%- include('footer') %>
+
