@@ -150,6 +150,12 @@ const getDefaultData = () => {
         status: 'Devam Ediyor',
         featured: true,
         image: 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?q=80&w=1000&auto=format&fit=crop',
+        images: [
+          'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?q=80&w=1000&auto=format&fit=crop',
+          'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=1000&auto=format&fit=crop',
+          'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?q=80&w=1000&auto=format&fit=crop',
+          'https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?q=80&w=1000&auto=format&fit=crop'
+        ],
         description: '350 bağımsız bölümden oluşan, panoramik şehir manzaralı ve akıllı ev konseptli lüks rezidans projesi.'
       },
       {
@@ -161,6 +167,10 @@ const getDefaultData = () => {
         status: 'Tamamlandı',
         featured: true,
         image: 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?q=80&w=1000&auto=format&fit=crop',
+        images: [
+          'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?q=80&w=1000&auto=format&fit=crop',
+          'https://images.unsplash.com/photo-1581094794329-c8112a89af12?q=80&w=1000&auto=format&fit=crop'
+        ],
         description: '45.000 m² kapalı alana sahip, LEED sertifikalı yüksek tavanlı modern sanayi tesisi ve depo kompleksi.'
       },
       {
@@ -172,6 +182,11 @@ const getDefaultData = () => {
         status: 'Tamamlandı',
         featured: true,
         image: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=1000&auto=format&fit=crop',
+        images: [
+          'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=1000&auto=format&fit=crop',
+          'https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=1000&auto=format&fit=crop',
+          'https://images.unsplash.com/photo-1497366811353-6870744d04b2?q=80&w=1000&auto=format&fit=crop'
+        ],
         description: '28 katlı prestijli iş kulesi; helikopter pisti, VIP lounge ve sürdürülebilir yeşil bina mimarisi.'
       },
       {
@@ -183,6 +198,11 @@ const getDefaultData = () => {
         status: 'Tamamlandı',
         featured: true,
         image: 'https://images.unsplash.com/photo-1613977257363-707ba9348227?q=80&w=1000&auto=format&fit=crop',
+        images: [
+          'https://images.unsplash.com/photo-1613977257363-707ba9348227?q=80&w=1000&auto=format&fit=crop',
+          'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?q=80&w=1000&auto=format&fit=crop',
+          'https://images.unsplash.com/photo-1613490493576-7fde63acd811?q=80&w=1000&auto=format&fit=crop'
+        ],
         description: 'Denize sıfır 24 adet özel havuzlu akıllı villa projesi; doğal taş ve ahşap dokuların mükemmel uyumu.'
       },
       {
@@ -194,6 +214,9 @@ const getDefaultData = () => {
         status: 'Devam Ediyor',
         featured: false,
         image: 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?q=80&w=1000&auto=format&fit=crop',
+        images: [
+          'https://images.unsplash.com/photo-1504307651254-35680f356dfd?q=80&w=1000&auto=format&fit=crop'
+        ],
         description: 'Son teknoloji yangın ve otomasyon sistemlerine sahip 60.000 m² depolama ve sevkiyat merkezi.'
       },
       {
@@ -205,6 +228,9 @@ const getDefaultData = () => {
         status: 'Tamamlandı',
         featured: false,
         image: 'https://images.unsplash.com/photo-1519999482648-25049ddd37b1?q=80&w=1000&auto=format&fit=crop',
+        images: [
+          'https://images.unsplash.com/photo-1519999482648-25049ddd37b1?q=80&w=1000&auto=format&fit=crop'
+        ],
         description: 'Açık hava alışveriş caddesi, restoranlar ve 120 mağazadan oluşan modern yaşam merkezi.'
       }
     ],
@@ -397,18 +423,41 @@ module.exports = {
     return true;
   },
 
-  // Projects
+  // Projects (Çoklu Fotoğraf / Sınırsız Galeri Desteği)
   getProjects: () => {
     const db = readDb();
-    return db.projects || [];
+    return (db.projects || []).map(p => {
+      const imgs = Array.isArray(p.images) && p.images.length > 0 
+        ? p.images.filter(Boolean) 
+        : (p.image ? [p.image] : []);
+      return {
+        ...p,
+        images: imgs.length > 0 ? imgs : ['https://images.unsplash.com/photo-1541888946425-d0fbb186156f?q=80&w=1000&auto=format&fit=crop'],
+        image: (imgs.length > 0 ? imgs[0] : (p.image || 'https://images.unsplash.com/photo-1541888946425-d0fbb186156f?q=80&w=1000&auto=format&fit=crop'))
+      };
+    });
   },
   getProjectById: (id) => {
     const db = readDb();
-    return (db.projects || []).find(p => p.id === String(id));
+    const p = (db.projects || []).find(p => p.id === String(id));
+    if (!p) return null;
+    const imgs = Array.isArray(p.images) && p.images.length > 0 
+      ? p.images.filter(Boolean) 
+      : (p.image ? [p.image] : []);
+    return {
+      ...p,
+      images: imgs.length > 0 ? imgs : ['https://images.unsplash.com/photo-1541888946425-d0fbb186156f?q=80&w=1000&auto=format&fit=crop'],
+      image: (imgs.length > 0 ? imgs[0] : (p.image || 'https://images.unsplash.com/photo-1541888946425-d0fbb186156f?q=80&w=1000&auto=format&fit=crop'))
+    };
   },
   addProject: (project) => {
     const db = readDb();
     project.id = Date.now().toString();
+    const imgs = Array.isArray(project.images) && project.images.length > 0 
+      ? project.images.filter(Boolean) 
+      : (project.image ? [project.image] : []);
+    project.images = imgs.length > 0 ? imgs : ['https://images.unsplash.com/photo-1541888946425-d0fbb186156f?q=80&w=1000&auto=format&fit=crop'];
+    project.image = project.images[0];
     db.projects.unshift(project);
     saveDb(db);
     return project;
@@ -417,7 +466,13 @@ module.exports = {
     const db = readDb();
     const idx = db.projects.findIndex(p => p.id === String(id));
     if (idx !== -1) {
-      db.projects[idx] = { ...db.projects[idx], ...data };
+      const updated = { ...db.projects[idx], ...data };
+      const imgs = Array.isArray(updated.images) && updated.images.length > 0 
+        ? updated.images.filter(Boolean) 
+        : (updated.image ? [updated.image] : []);
+      updated.images = imgs.length > 0 ? imgs : ['https://images.unsplash.com/photo-1541888946425-d0fbb186156f?q=80&w=1000&auto=format&fit=crop'];
+      updated.image = updated.images[0];
+      db.projects[idx] = updated;
       saveDb(db);
       return db.projects[idx];
     }
@@ -428,6 +483,43 @@ module.exports = {
     db.projects = db.projects.filter(p => p.id !== String(id));
     saveDb(db);
     return true;
+  },
+  deleteProjectImage: (id, imageUrl) => {
+    const db = readDb();
+    const idx = db.projects.findIndex(p => p.id === String(id));
+    if (idx !== -1) {
+      const p = db.projects[idx];
+      let imgs = Array.isArray(p.images) && p.images.length > 0 ? p.images : (p.image ? [p.image] : []);
+      imgs = imgs.filter(img => img !== imageUrl);
+      if (imgs.length === 0) {
+        imgs = ['https://images.unsplash.com/photo-1541888946425-d0fbb186156f?q=80&w=1000&auto=format&fit=crop'];
+      }
+      p.images = imgs;
+      p.image = imgs[0];
+      db.projects[idx] = p;
+      saveDb(db);
+      return p;
+    }
+    return null;
+  },
+  setProjectCoverImage: (id, imageUrl) => {
+    const db = readDb();
+    const idx = db.projects.findIndex(p => p.id === String(id));
+    if (idx !== -1) {
+      const p = db.projects[idx];
+      let imgs = Array.isArray(p.images) && p.images.length > 0 ? p.images : (p.image ? [p.image] : []);
+      if (imgs.includes(imageUrl)) {
+        imgs = [imageUrl, ...imgs.filter(img => img !== imageUrl)];
+      } else {
+        imgs = [imageUrl, ...imgs];
+      }
+      p.images = imgs;
+      p.image = imageUrl;
+      db.projects[idx] = p;
+      saveDb(db);
+      return p;
+    }
+    return null;
   },
 
   // Pages

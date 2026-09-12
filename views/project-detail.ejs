@@ -48,9 +48,53 @@
       
       <!-- Sol: Proje Görseli & Açıklaması -->
       <div class="lg:col-span-8 space-y-8">
-        <div class="rounded-3xl overflow-hidden shadow-2xl border border-slate-200">
-          <img src="<%= project.image %>" alt="<%= project.title %>" class="w-full h-auto max-h-[550px] object-cover">
+        <% const galleryImages = (project.images && project.images.length > 0) ? project.images : (project.image ? [project.image] : []); %>
+        
+        <!-- Ana Görsel Görüntüleyici -->
+        <div class="relative rounded-3xl overflow-hidden shadow-2xl border border-slate-200 group bg-slate-900">
+          <img id="mainProjectImg" src="<%= galleryImages[0] %>" alt="<%= project.title %>" class="w-full h-auto max-h-[550px] object-cover transition-opacity duration-300">
+          
+          <!-- Tam Ekran Büyütme Butonu -->
+          <button onclick="openLightbox(currentGalleryIndex)" class="absolute bottom-4 right-4 bg-dark-900/80 hover:bg-brand-500 hover:text-dark-900 text-white text-xs font-bold px-4 py-2.5 rounded-xl backdrop-blur-md transition-all shadow-xl flex items-center space-x-2 z-10">
+            <i class="fa-solid fa-expand"></i>
+            <span>Tam Ekran Gör</span>
+          </button>
+
+          <!-- Çoklu Fotoğraf Varsa İleri / Geri Butonları -->
+          <% if (galleryImages.length > 1) { %>
+            <button onclick="prevGalleryImage()" class="absolute left-4 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-dark-900/70 hover:bg-brand-500 hover:text-dark-900 text-white flex items-center justify-center backdrop-blur-md transition-all opacity-0 group-hover:opacity-100 z-10 shadow-lg">
+              <i class="fa-solid fa-chevron-left text-sm"></i>
+            </button>
+            <button onclick="nextGalleryImage()" class="absolute right-4 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-dark-900/70 hover:bg-brand-500 hover:text-dark-900 text-white flex items-center justify-center backdrop-blur-md transition-all opacity-0 group-hover:opacity-100 z-10 shadow-lg">
+              <i class="fa-solid fa-chevron-right text-sm"></i>
+            </button>
+            
+            <div class="absolute top-4 right-4 bg-dark-900/80 text-white text-[11px] font-extrabold px-3 py-1.5 rounded-full backdrop-blur-md shadow-md z-10">
+              <span id="galleryCounter">1</span> / <%= galleryImages.length %>
+            </div>
+          <% } %>
         </div>
+
+        <!-- Küçük Fotoğraf Küçük Resimleri (Thumbnail Galeri) -->
+        <% if (galleryImages.length > 1) { %>
+          <div class="space-y-3 bg-slate-50 p-5 rounded-2xl border border-slate-200/80">
+            <div class="flex items-center justify-between">
+              <h3 class="text-xs font-bold text-dark-900 uppercase tracking-wider flex items-center space-x-2">
+                <i class="fa-solid fa-images text-brand-500"></i>
+                <span>Proje Fotoğraf Galerisi (<%= galleryImages.length %> Fotoğraf)</span>
+              </h3>
+              <span class="text-[11px] text-slate-400">Büyütmek için fotoğraflara tıklayabilirsiniz</span>
+            </div>
+            <div class="grid grid-cols-3 sm:grid-cols-6 gap-3">
+              <% galleryImages.forEach((img, idx) => { %>
+                <button type="button" onclick="setMainImage(<%= idx %>)" class="gallery-thumb group relative rounded-xl overflow-hidden border-2 <%= idx === 0 ? 'border-brand-500 ring-2 ring-brand-300' : 'border-transparent' %> hover:border-brand-400 transition-all focus:outline-none aspect-video bg-slate-200">
+                  <img src="<%= img %>" alt="<%= project.title %> - <%= idx + 1 %>" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300">
+                  <div class="absolute inset-0 bg-dark-900/20 group-hover:bg-transparent transition-colors"></div>
+                </button>
+              <% }) %>
+            </div>
+          </div>
+        <% } %>
 
         <div class="space-y-4">
           <h2 class="text-2xl font-bold text-dark-900">Proje Hakkında</h2>
@@ -138,6 +182,124 @@
     </div>
   </div>
 </section>
+
+<!-- ================= PROJE FOTOĞRAF LIGHTBOX MODAL ================= -->
+<div id="projectLightbox" class="fixed inset-0 z-50 bg-black/95 backdrop-blur-md hidden flex flex-col justify-between p-4 sm:p-8 select-none">
+  <!-- Üst Bar -->
+  <div class="flex items-center justify-between text-white z-20">
+    <div class="space-y-0.5">
+      <h4 class="text-sm font-bold text-white"><%= project.title %></h4>
+      <div class="text-xs text-brand-400 font-semibold">
+        <span id="lbCounter">1</span> / <%= galleryImages.length %> Fotoğraf
+      </div>
+    </div>
+    <button onclick="closeLightbox()" class="w-11 h-11 rounded-2xl bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-all">
+      <i class="fa-solid fa-xmark text-lg"></i>
+    </button>
+  </div>
+
+  <!-- Orta Alan / Büyük Resim -->
+  <div class="relative flex-1 flex items-center justify-center overflow-hidden my-4">
+    <img id="lbImg" src="" alt="Tam Ekran Proje Fotoğrafı" class="max-w-full max-h-[80vh] object-contain rounded-2xl shadow-2xl transition-all duration-300">
+    
+    <% if (galleryImages.length > 1) { %>
+      <button onclick="prevGalleryImage()" class="absolute left-2 sm:left-6 top-1/2 -translate-y-1/2 w-12 h-12 rounded-2xl bg-white/10 hover:bg-brand-500 hover:text-dark-900 text-white flex items-center justify-center backdrop-blur-md transition-all">
+        <i class="fa-solid fa-chevron-left text-lg"></i>
+      </button>
+      <button onclick="nextGalleryImage()" class="absolute right-2 sm:right-6 top-1/2 -translate-y-1/2 w-12 h-12 rounded-2xl bg-white/10 hover:bg-brand-500 hover:text-dark-900 text-white flex items-center justify-center backdrop-blur-md transition-all">
+        <i class="fa-solid fa-chevron-right text-lg"></i>
+      </button>
+    <% } %>
+  </div>
+
+  <!-- Alt Bar / Bilgi & Kısayol İpuçları -->
+  <div class="text-center text-xs text-slate-400 z-20 hidden sm:block">
+    Fotoğraflar arasında geçiş yapmak için klavyedeki <kbd class="px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700">←</kbd> ve <kbd class="px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700">→</kbd> yön tuşlarını, kapatmak için <kbd class="px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700">ESC</kbd> tuşunu kullanabilirsiniz.
+  </div>
+</div>
+
+<script>
+  const galleryImages = <%- JSON.stringify(galleryImages) %>;
+  let currentGalleryIndex = 0;
+
+  function setMainImage(index) {
+    if (index < 0 || index >= galleryImages.length) return;
+    currentGalleryIndex = index;
+    const mainImg = document.getElementById('mainProjectImg');
+    const counter = document.getElementById('galleryCounter');
+    
+    if (mainImg) {
+      mainImg.style.opacity = '0.3';
+      setTimeout(() => {
+        mainImg.src = galleryImages[currentGalleryIndex];
+        mainImg.style.opacity = '1';
+      }, 150);
+    }
+    if (counter) counter.innerText = currentGalleryIndex + 1;
+
+    // Aktif thumbnail çerçevesi
+    const thumbs = document.querySelectorAll('.gallery-thumb');
+    thumbs.forEach((th, i) => {
+      if (i === currentGalleryIndex) {
+        th.classList.add('border-brand-500', 'ring-2', 'ring-brand-300');
+        th.classList.remove('border-transparent');
+      } else {
+        th.classList.remove('border-brand-500', 'ring-2', 'ring-brand-300');
+        th.classList.add('border-transparent');
+      }
+    });
+
+    // Lightbox açıksa onu da güncelle
+    const lbImg = document.getElementById('lbImg');
+    const lbCounter = document.getElementById('lbCounter');
+    if (lbImg) lbImg.src = galleryImages[currentGalleryIndex];
+    if (lbCounter) lbCounter.innerText = currentGalleryIndex + 1;
+  }
+
+  function nextGalleryImage() {
+    let nextIdx = (currentGalleryIndex + 1) % galleryImages.length;
+    setMainImage(nextIdx);
+  }
+
+  function prevGalleryImage() {
+    let prevIdx = (currentGalleryIndex - 1 + galleryImages.length) % galleryImages.length;
+    setMainImage(prevIdx);
+  }
+
+  function openLightbox(index) {
+    if (typeof index === 'number') {
+      setMainImage(index);
+    }
+    const lb = document.getElementById('projectLightbox');
+    const lbImg = document.getElementById('lbImg');
+    const lbCounter = document.getElementById('lbCounter');
+    
+    lbImg.src = galleryImages[currentGalleryIndex];
+    if (lbCounter) lbCounter.innerText = currentGalleryIndex + 1;
+    lb.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeLightbox() {
+    const lb = document.getElementById('projectLightbox');
+    lb.classList.add('hidden');
+    document.body.style.overflow = '';
+  }
+
+  // Klavye Kontrolleri
+  document.addEventListener('keydown', function(e) {
+    const lb = document.getElementById('projectLightbox');
+    const isLbOpen = lb && !lb.classList.contains('hidden');
+    
+    if (e.key === 'Escape' && isLbOpen) {
+      closeLightbox();
+    } else if (e.key === 'ArrowRight') {
+      nextGalleryImage();
+    } else if (e.key === 'ArrowLeft') {
+      prevGalleryImage();
+    }
+  });
+</script>
 
 <%- include('partials/footer') %>
 

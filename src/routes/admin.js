@@ -2,6 +2,8 @@ const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
 const slugify = require('slugify');
+const fs = require('fs');
+const path = require('path');
 const db = require('../db');
 const upload = require('../upload');
 
@@ -309,14 +311,18 @@ router.get('/projects', requireAuth, (req, res) => {
   });
 });
 
-router.post('/projects/add', requireAuth, upload.single('image'), (req, res) => {
-  const { title, category, location, year, status, description, featured } = req.body;
+router.post('/projects/add', requireAuth, upload.array('images', 100), (req, res) => {
+  const { title, category, location, year, status, description, featured, imageUrl } = req.body;
   
-  let imageUrl = 'https://images.unsplash.com/photo-1541888946425-d0fbb186156f?q=80&w=1000&auto=format&fit=crop';
-  if (req.file) {
-    imageUrl = `/uploads/${req.file.filename}`;
-  } else if (req.body.imageUrl) {
-    imageUrl = req.body.imageUrl;
+  let images = [];
+  if (req.files && req.files.length > 0) {
+    images = req.files.map(f => `/uploads/${f.filename}`);
+  } else if (imageUrl) {
+    images = imageUrl.split(',').map(s => s.trim()).filter(Boolean);
+  }
+
+  if (images.length === 0) {
+    images = ['https://images.unsplash.com/photo-1541888946425-d0fbb186156f?q=80&w=1000&auto=format&fit=crop'];
   }
 
   db.addProject({
@@ -327,18 +333,35 @@ router.post('/projects/add', requireAuth, upload.single('image'), (req, res) => 
     status: status || 'Tamamlandı',
     featured: featured === 'on' || featured === 'true',
     description: description || '',
-    image: imageUrl
+    images,
+    image: images[0]
   });
 
   res.redirect('/admin/projects?saved=1');
 });
 
-router.post('/projects/edit/:id', requireAuth, upload.single('image'), (req, res) => {
-  const { title, category, location, year, status, description, featured } = req.body;
+router.post('/projects/edit/:id', requireAuth, upload.array('images', 100), (req, res) => {
+  const { title, category, location, year, status, description, featured, imageUrl } = req.body;
   const project = db.getProjectById(req.params.id);
 
   if (!project) {
     return res.redirect('/admin/projects');
+  }
+
+  // Mevcut fotoğrafları koru ve yeni yüklenenleri ekle
+  let currentImages = Array.isArray(project.images) && project.images.length > 0 
+    ? [...project.images] 
+    : (project.image ? [project.image] : []);
+
+  if (req.files && req.files.length > 0) {
+    const newImgs = req.files.map(f => `/uploads/${f.filename}`);
+    currentImages = [...currentImages, ...newImgs];
+  } else if (imageUrl && currentImages.length === 0) {
+    currentImages = imageUrl.split(',').map(s => s.trim()).filter(Boolean);
+  }
+
+  if (currentImages.length === 0) {
+    currentImages = ['https://images.unsplash.com/photo-1541888946425-d0fbb186156f?q=80&w=1000&auto=format&fit=crop'];
   }
 
   const updateData = {
@@ -348,16 +371,64 @@ router.post('/projects/edit/:id', requireAuth, upload.single('image'), (req, res
     year: year || project.year,
     status: status || project.status,
     featured: featured === 'on' || featured === 'true',
-    description: description || ''
+    description: description || '',
+    images: currentImages,
+    image: currentImages[0]
   };
 
-  if (req.file) {
-    updateData.image = `/uploads/${req.file.filename}`;
-  } else if (req.body.imageUrl) {
-    updateData.image = req.body.imageUrl;
+  db.updateProject(req.params.id, updateData);
+  res.redirect('/admin/projects?saved=1');
+});
+
+// Projeden tek bir fotoğraf silme (AJAX veya Form)
+router.post('/projects/:id/delete-image', requireAuth, (req, res) => {
+  const { imageUrl } = req.body;
+  const project = db.getProjectById(req.params.id);
+
+  if (!project) {
+    if (req.xhr || req.headers.accept?.indexOf('json') > -1 || req.is('json')) {
+      return res.status(404).json({ success: false, message: 'Proje bulunamadı' });
+    }
+    return res.redirect('/admin/projects');
   }
 
-  db.updateProject(req.params.id, updateData);
+  const updatedProject = db.deleteProjectImage(req.params.id, imageUrl);
+
+  // Dosya sunucudaysa diskten de silmeyi dene
+  if (imageUrl && imageUrl.startsWith('/uploads/')) {
+    const filePath = path.join(__dirname, '../../public', imageUrl);
+    try {
+      if (fs.existsSync(filePath)) {
+        fs.unlinkSync(filePath);
+      }
+    } catch (e) {
+      console.error('Fotoğraf diskten silinirken hata:', e);
+    }
+  }
+
+  if (req.xhr || req.headers.accept?.indexOf('json') > -1 || req.is('json')) {
+    return res.json({ success: true, project: updatedProject });
+  }
+  res.redirect('/admin/projects?saved=1');
+});
+
+// Fotoğrafı kapak fotoğrafı yapma
+router.post('/projects/:id/set-cover', requireAuth, (req, res) => {
+  const { imageUrl } = req.body;
+  const project = db.getProjectById(req.params.id);
+
+  if (!project) {
+    if (req.xhr || req.headers.accept?.indexOf('json') > -1 || req.is('json')) {
+      return res.status(404).json({ success: false, message: 'Proje bulunamadı' });
+    }
+    return res.redirect('/admin/projects');
+  }
+
+  const updatedProject = db.setProjectCoverImage(req.params.id, imageUrl);
+
+  if (req.xhr || req.headers.accept?.indexOf('json') > -1 || req.is('json')) {
+    return res.json({ success: true, project: updatedProject });
+  }
   res.redirect('/admin/projects?saved=1');
 });
 

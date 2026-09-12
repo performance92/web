@@ -25,7 +25,7 @@
     <table class="w-full text-left text-sm text-slate-600">
       <thead class="bg-slate-50 text-slate-500 text-[11px] font-bold uppercase tracking-wider border-b border-slate-200">
         <tr>
-          <th class="px-6 py-4">Fotoğraf</th>
+          <th class="px-6 py-4">Fotoğraflar</th>
           <th class="px-6 py-4">Proje Adı</th>
           <th class="px-6 py-4">Kategori</th>
           <th class="px-6 py-4">Lokasyon / Yıl</th>
@@ -36,9 +36,25 @@
       <tbody class="divide-y divide-slate-100">
         <% if (projects && projects.length > 0) { %>
           <% projects.forEach(p => { %>
+            <% const pImages = (p.images && p.images.length > 0) ? p.images : (p.image ? [p.image] : []); %>
             <tr class="hover:bg-slate-50/80 transition-colors">
               <td class="px-6 py-4">
-                <img src="<%= p.image %>" alt="<%= p.title %>" class="w-16 h-12 rounded-lg object-cover border border-slate-200 shadow-sm">
+                <div class="flex items-center space-x-3">
+                  <div class="relative group">
+                    <img src="<%= p.image %>" alt="<%= p.title %>" class="w-16 h-12 rounded-lg object-cover border border-slate-200 shadow-sm shrink-0">
+                    <% if (pImages.length > 1) { %>
+                      <span class="absolute -top-2 -right-2 bg-brand-500 text-dark-900 text-[10px] font-extrabold w-5 h-5 rounded-full flex items-center justify-center shadow-md">
+                        <%= pImages.length %>
+                      </span>
+                    <% } %>
+                  </div>
+                  <div>
+                    <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold <%= pImages.length > 1 ? 'bg-amber-100 text-amber-900' : 'bg-slate-100 text-slate-600' %>">
+                      <i class="fa-solid fa-images mr-1 text-[10px]"></i>
+                      <%= pImages.length %> Fotoğraf
+                    </span>
+                  </div>
+                </div>
               </td>
               <td class="px-6 py-4">
                 <div class="font-bold text-dark-900"><%= p.title %></div>
@@ -76,7 +92,7 @@
         <% } else { %>
           <tr>
             <td colspan="6" class="px-6 py-12 text-center text-slate-400">
-              Henüz kayıtlı proje bulunmuyor. "Yeni Proje Ekle" butonuyla ilk projenizi ekleyebilirsiniz.
+              Henüz kayıtlı proje bulunmuyor. "Yeni Proje & Fotoğraf Ekle" butonuyla ilk projenizi ekleyebilirsiniz.
             </td>
           </tr>
         <% } %>
@@ -87,17 +103,19 @@
 
 <!-- ================= YENİ / DÜZENLEME PROJE MODALI ================= -->
 <div id="projectModal" class="fixed inset-0 z-50 bg-dark-900/80 backdrop-blur-sm hidden flex items-center justify-center p-4 overflow-y-auto">
-  <div class="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl relative my-8">
+  <div class="bg-white rounded-3xl max-w-3xl w-full p-6 sm:p-8 shadow-2xl relative my-8 max-h-[90vh] overflow-y-auto">
     <button onclick="toggleProjectModal()" class="absolute top-6 right-6 text-slate-400 hover:text-dark-900 text-lg">
       <i class="fa-solid fa-xmark"></i>
     </button>
 
     <h3 id="modalTitle" class="text-xl font-bold text-dark-900 mb-6 flex items-center space-x-2">
       <i class="fa-solid fa-camera-retro text-brand-500"></i>
-      <span>Yeni Proje & Fotoğraf Ekle</span>
+      <span>Yeni Proje & Fotoğraf Galerisi Ekle</span>
     </h3>
 
-    <form id="projectForm" action="/admin/projects/add" method="POST" enctype="multipart/form-data" class="space-y-5">
+    <form id="projectForm" action="/admin/projects/add" method="POST" enctype="multipart/form-data" class="space-y-6">
+      
+      <!-- Temel Bilgiler -->
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
           <label class="block text-xs font-bold text-slate-700 uppercase mb-1.5">Proje Başlığı *</label>
@@ -132,14 +150,55 @@
         </div>
       </div>
 
-      <!-- Fotoğraf Yükleme -->
-      <div class="bg-slate-50 p-4 rounded-2xl border-2 border-dashed border-slate-300 space-y-2">
-        <label class="block text-xs font-bold text-dark-900 uppercase">Proje Fotoğrafı Yükle *</label>
-        <div class="flex items-center space-x-4">
-          <img id="p_preview" src="" alt="Önizleme" class="w-16 h-12 rounded-lg object-cover border border-slate-300 hidden">
-          <input type="file" name="image" id="p_imageInput" accept="image/*" class="block w-full text-xs text-slate-500 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-brand-500 file:text-dark-900 cursor-pointer">
+      <!-- MEVCUT FOTOĞRAFLAR GALERİ YÖNETİMİ (Düzenleme Modunda Açılır) -->
+      <div id="p_existingSection" class="hidden bg-slate-50 p-5 rounded-2xl border border-slate-200 space-y-3">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center space-x-2">
+            <i class="fa-solid fa-photo-film text-brand-500"></i>
+            <h4 class="text-xs font-bold text-dark-900 uppercase">Mevcut Proje Fotoğrafları (<span id="p_existingCount">0</span>)</h4>
+          </div>
+          <span class="text-[11px] text-slate-400">Yıldız simgesi kapak fotoğrafını gösterir. İstediğiniz fotoğrafı silebilir veya kapak yapabilirsiniz.</span>
         </div>
-        <p class="text-[11px] text-slate-400">JPG, PNG veya WebP formatında yüksek çözünürlüklü şantiye/proje fotoğrafı.</p>
+        
+        <div id="p_existingGrid" class="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
+          <!-- Dinamik olarak JS ile doldurulur -->
+        </div>
+      </div>
+
+      <!-- FOTOĞRAF YÜKLEME (SINIRSIZ ÇOKLU SEÇİM) -->
+      <div class="bg-amber-50/50 p-5 rounded-2xl border-2 border-dashed border-amber-300 space-y-3">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+          <label class="block text-xs font-extrabold text-dark-900 uppercase flex items-center space-x-1.5">
+            <i class="fa-solid fa-cloud-arrow-up text-brand-600 text-sm"></i>
+            <span id="p_uploadLabel">Fotoğraf Yükle (Sınırsız / Çoklu Seçim)</span>
+          </label>
+          <span class="text-[11px] font-bold text-brand-700 bg-brand-100 px-2.5 py-0.5 rounded-full">
+            <i class="fa-solid fa-infinity mr-1"></i>Fotoğraf Sınırı Yoktur
+          </span>
+        </div>
+
+        <input 
+          type="file" 
+          name="images" 
+          id="p_imagesInput" 
+          multiple 
+          accept="image/*" 
+          class="block w-full text-xs text-slate-600 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-brand-500 file:text-dark-900 hover:file:bg-brand-600 cursor-pointer border border-slate-200 rounded-xl bg-white p-2"
+        >
+        
+        <p class="text-[11px] text-slate-500 leading-relaxed">
+          <i class="fa-solid fa-circle-info text-brand-500 mr-1"></i>
+          Bilgisayarınızdan veya telefonunuzdan aynı anda <strong>birden fazla veya dilediğiniz kadar</strong> fotoğraf seçebilirsiniz (JPG, PNG, WEBP).
+        </p>
+
+        <!-- Seçilen Yeni Fotoğrafların Canlı Önizleme Kutusu -->
+        <div id="p_newPreviewsContainer" class="hidden space-y-2 pt-2 border-t border-amber-200">
+          <div class="text-xs font-bold text-dark-900 flex items-center space-x-1">
+            <i class="fa-solid fa-eye text-brand-500"></i>
+            <span>Seçilen Yeni Fotoğraflar: <span id="p_newFilesCount" class="text-brand-600 font-extrabold">0</span> adet</span>
+          </div>
+          <div id="p_newPreviewsGrid" class="grid grid-cols-3 sm:grid-cols-6 gap-2.5"></div>
+        </div>
       </div>
 
       <div>
@@ -156,8 +215,9 @@
         <button type="button" onclick="toggleProjectModal()" class="px-5 py-3 rounded-xl border border-slate-200 text-slate-600 font-bold text-xs hover:bg-slate-50">
           Vazgeç
         </button>
-        <button type="submit" class="px-6 py-3 rounded-xl bg-brand-500 hover:bg-brand-600 text-dark-900 font-extrabold text-xs shadow-lg">
-          Projeyi Kaydet
+        <button type="submit" class="px-6 py-3 rounded-xl bg-brand-500 hover:bg-brand-600 text-dark-900 font-extrabold text-xs shadow-lg flex items-center space-x-2">
+          <i class="fa-solid fa-floppy-disk"></i>
+          <span>Projeyi Kaydet</span>
         </button>
       </div>
     </form>
@@ -165,28 +225,38 @@
 </div>
 
 <script>
+  let currentEditingProjectId = null;
+
   function toggleProjectModal() {
     const modal = document.getElementById('projectModal');
     modal.classList.toggle('hidden');
     if (!modal.classList.contains('hidden')) {
+      currentEditingProjectId = null;
       document.getElementById('projectForm').action = '/admin/projects/add';
-      document.getElementById('modalTitle').innerHTML = '<i class="fa-solid fa-camera-retro text-brand-500 mr-2"></i>Yeni Proje & Fotoğraf Ekle';
+      document.getElementById('modalTitle').innerHTML = '<i class="fa-solid fa-camera-retro text-brand-500 mr-2"></i>Yeni Proje & Fotoğraf Galerisi Ekle';
+      document.getElementById('p_uploadLabel').innerText = 'Fotoğraf Yükle (Sınırsız / Çoklu Seçim)';
       document.getElementById('p_title').value = '';
       document.getElementById('p_location').value = 'İstanbul';
       document.getElementById('p_year').value = new Date().getFullYear();
       document.getElementById('p_description').value = '';
       document.getElementById('p_featured').checked = false;
-      document.getElementById('p_preview').classList.add('hidden');
+      document.getElementById('p_imagesInput').value = '';
+      document.getElementById('p_existingSection').classList.add('hidden');
+      document.getElementById('p_existingGrid').innerHTML = '';
+      document.getElementById('p_newPreviewsContainer').classList.add('hidden');
+      document.getElementById('p_newPreviewsGrid').innerHTML = '';
     }
   }
 
   function editProject(pJson) {
     const p = JSON.parse(pJson);
+    currentEditingProjectId = p.id;
     const modal = document.getElementById('projectModal');
     modal.classList.remove('hidden');
 
     document.getElementById('projectForm').action = '/admin/projects/edit/' + p.id;
     document.getElementById('modalTitle').innerHTML = '<i class="fa-solid fa-pen-to-square text-blue-500 mr-2"></i>Projeyi Düzenle: ' + p.title;
+    document.getElementById('p_uploadLabel').innerText = 'Yeni Fotoğraflar Ekle (Sınırsız Seçim)';
 
     document.getElementById('p_title').value = p.title || '';
     document.getElementById('p_category').value = p.category || 'Konut';
@@ -195,15 +265,129 @@
     document.getElementById('p_status').value = p.status || 'Tamamlandı';
     document.getElementById('p_description').value = p.description || '';
     document.getElementById('p_featured').checked = !!p.featured;
+    document.getElementById('p_imagesInput').value = '';
+    document.getElementById('p_newPreviewsContainer').classList.add('hidden');
+    document.getElementById('p_newPreviewsGrid').innerHTML = '';
 
-    if (p.image) {
-      const preview = document.getElementById('p_preview');
-      preview.src = p.image;
-      preview.classList.remove('hidden');
+    renderExistingImages(p);
+  }
+
+  function renderExistingImages(p) {
+    const images = (p.images && p.images.length > 0) ? p.images : (p.image ? [p.image] : []);
+    const existingSection = document.getElementById('p_existingSection');
+    const existingGrid = document.getElementById('p_existingGrid');
+    const existingCount = document.getElementById('p_existingCount');
+
+    if (images.length === 0) {
+      existingSection.classList.add('hidden');
+      return;
+    }
+
+    existingSection.classList.remove('hidden');
+    existingCount.innerText = images.length;
+    existingGrid.innerHTML = '';
+
+    images.forEach((imgUrl, index) => {
+      const isCover = (index === 0) || (imgUrl === p.image);
+      const card = document.createElement('div');
+      card.className = 'relative group rounded-xl overflow-hidden border ' + (isCover ? 'border-brand-500 ring-2 ring-brand-400' : 'border-slate-200') + ' bg-white shadow-sm';
+      card.innerHTML = `
+        <div class="h-24 w-full overflow-hidden bg-slate-100">
+          <img src="${imgUrl}" alt="Fotoğraf" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+        </div>
+        ${isCover ? `
+          <div class="absolute top-1.5 left-1.5 bg-brand-500 text-dark-900 text-[9px] font-extrabold px-1.5 py-0.5 rounded shadow">
+            ⭐ Kapak
+          </div>
+        ` : ''}
+        <div class="p-1.5 flex items-center justify-between bg-white border-t border-slate-100">
+          ${!isCover ? `
+            <button type="button" onclick="setCoverImage('${p.id}', '${imgUrl}')" class="text-[10px] font-bold text-brand-600 hover:text-brand-800 transition-colors" title="Kapak Fotoğrafı Yap">
+              ⭐ Kapak Yap
+            </button>
+          ` : `
+            <span class="text-[10px] font-semibold text-slate-400">Varsayılan</span>
+          `}
+          <button type="button" onclick="deleteProjectImage('${p.id}', '${imgUrl}')" class="p-1 text-slate-400 hover:text-rose-600 transition-colors ml-auto" title="Fotoğrafı Sil">
+            <i class="fa-solid fa-trash-can text-xs"></i>
+          </button>
+        </div>
+      `;
+      existingGrid.appendChild(card);
+    });
+  }
+
+  // Fotoğrafı Kapak Yap (AJAX)
+  async function setCoverImage(projectId, imageUrl) {
+    try {
+      const res = await fetch('/admin/projects/' + projectId + '/set-cover', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ imageUrl })
+      });
+      const data = await res.json();
+      if (data.success && data.project) {
+        renderExistingImages(data.project);
+      }
+    } catch (err) {
+      console.error('Kapak fotoğrafı ayarlanırken hata:', err);
     }
   }
 
-  setupImagePreview('p_imageInput', 'p_preview');
+  // Fotoğrafı Sil (AJAX)
+  async function deleteProjectImage(projectId, imageUrl) {
+    if (!confirm('Bu fotoğrafı silmek istediğinizden emin misiniz?')) return;
+    try {
+      const res = await fetch('/admin/projects/' + projectId + '/delete-image', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ imageUrl })
+      });
+      const data = await res.json();
+      if (data.success && data.project) {
+        renderExistingImages(data.project);
+      }
+    } catch (err) {
+      console.error('Fotoğraf silinirken hata:', err);
+    }
+  }
+
+  // Çoklu Dosya Seçimi Önizlemesi
+  const imagesInput = document.getElementById('p_imagesInput');
+  const newPreviewsContainer = document.getElementById('p_newPreviewsContainer');
+  const newPreviewsGrid = document.getElementById('p_newPreviewsGrid');
+  const newFilesCount = document.getElementById('p_newFilesCount');
+
+  if (imagesInput) {
+    imagesInput.addEventListener('change', function(e) {
+      const files = Array.from(e.target.files);
+      if (files.length === 0) {
+        newPreviewsContainer.classList.add('hidden');
+        newPreviewsGrid.innerHTML = '';
+        return;
+      }
+
+      newPreviewsContainer.classList.remove('hidden');
+      newFilesCount.innerText = files.length;
+      newPreviewsGrid.innerHTML = '';
+
+      files.forEach((file, idx) => {
+        const reader = new FileReader();
+        reader.onload = function(evt) {
+          const div = document.createElement('div');
+          div.className = 'relative rounded-lg overflow-hidden border border-amber-300 shadow-sm bg-white';
+          div.innerHTML = `
+            <img src="${evt.target.result}" class="w-full h-16 object-cover">
+            <div class="text-[9px] font-bold text-dark-900 bg-amber-200/90 text-center truncate px-1 py-0.5">
+              ${file.name}
+            </div>
+          `;
+          newPreviewsGrid.appendChild(div);
+        };
+        reader.readAsDataURL(file);
+      });
+    });
+  }
 </script>
 
 <%- include('footer') %>
