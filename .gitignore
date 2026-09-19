@@ -1,5 +1,6 @@
 node_modules/
 data/
+data_old/
 public/uploads/*
 !public/uploads/.gitkeep
 .git_old/

@@ -157,7 +157,7 @@
     <!-- Harita Bölümü -->
     <% if (settings.mapsEmbed) { %>
       <div class="mt-16 rounded-3xl overflow-hidden shadow-xl border border-slate-200">
-        <iframe src="<%= settings.mapsEmbed %>" width="100%" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+        <iframe src="<%= settings.mapsEmbed %>" width="100%" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe>
       </div>
     <% } %>
 

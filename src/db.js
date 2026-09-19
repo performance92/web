@@ -45,7 +45,7 @@ const getDefaultData = () => {
         linkedin: 'https://linkedin.com',
         youtube: 'https://youtube.com'
       },
-      mapsEmbed: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d192697.79327632662!2d28.871754!3d41.0055005!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x14cab63f63a77b47%3A0x280f57affec563d3!2zxLBzdGFuYnVs!5e0!3m2!1str!2str!4v1700000000000!5m2!1str!2str',
+      mapsEmbed: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d97818.70899555148!2d32.89145310631122!3d39.989800203787276!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x4082076812935815%3A0x84514048c480eeca!2zQWx0xLFuZGHEny9BbmthcmE!5e0!3m2!1str!2str!4v1789854727300!5m2!1str!2str',
       hero: {
         badge: 'Güven, Kalite & 25 Yıllık Tecrübe',
         title: 'Ağaoğulları İnşaat ile Sağlam Gelecek, Estetik Yapılar',

@@ -132,7 +132,14 @@ router.post('/settings', requireAuth, upload.fields([
     email: req.body.email || currentSettings.email,
     address: req.body.address || currentSettings.address,
     workingHours: req.body.workingHours || currentSettings.workingHours,
-    mapsEmbed: req.body.mapsEmbed || currentSettings.mapsEmbed,
+    mapsEmbed: (() => {
+      let val = req.body.mapsEmbed ? req.body.mapsEmbed.trim() : currentSettings.mapsEmbed;
+      if (val && val.includes('<iframe')) {
+        const match = val.match(/src=["']([^"']+)["']/i);
+        if (match && match[1]) return match[1];
+      }
+      return val;
+    })(),
     social: {
       facebook: req.body.social_facebook || '',
       instagram: req.body.social_instagram || '',
